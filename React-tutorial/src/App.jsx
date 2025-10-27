@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./components/Login";
 import FormBuilderHome from "./components/FormBuilderHome";
 import CreateForm from "./components/CreateForm";
-import BreadcrumbHeader from "./components/BreadcrumbHeader"; // ✅ new import
+import BreadcrumbHeader from "./components/BreadcrumbHeader";
+import ViewForm from "./components/ViewForm";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,28 +27,42 @@ export default function App() {
       {isLoggedIn && <BreadcrumbHeader />}
 
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            isLoggedIn ? (
-              <FormBuilderHome onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/create-form"
-          element={
-            isLoggedIn ? (
-              <CreateForm />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-      </Routes>
+  <Route path="/login" element={<Login />} />
+
+  <Route
+    path="/"
+    element={
+      isLoggedIn ? (
+        <FormBuilderHome onLogout={handleLogout} />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+
+  <Route
+    path="/form-builder/view/:id"
+    element={
+      isLoggedIn ? (
+        <ViewForm />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+
+  <Route
+    path="/create-form"
+    element={
+      isLoggedIn ? (
+        <CreateForm />
+      ) : (
+        <Navigate to="/login" replace />
+      )
+    }
+  />
+</Routes>
+
     </Router>
   );
 }
