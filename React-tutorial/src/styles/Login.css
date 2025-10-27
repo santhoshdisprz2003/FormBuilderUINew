@@ -1,0 +1,102 @@
+/* Center the login box */
+.login-container {
+  width: 380px;
+  margin: 100px auto;
+  padding: 40px 35px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  transition: transform 0.3s ease;
+}
+
+.login-container:hover {
+  transform: translateY(-3px);
+}
+
+/* Heading */
+.login-container h2 {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* Inputs */
+.login-container input {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-container input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* Button */
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.login-container button:hover {
+  background-color: #3c7adf;
+  transform: scale(1.02);
+}
+
+/* Toggle link (login/register switch) */
+.toggle-text {
+  margin-top: 18px;
+  color: #555;
+  font-size: 14px;
+}
+
+.toggle-text span {
+  color: #4a90e2;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.toggle-text span:hover {
+  color: #3c7adf;
+}
+
+/* Message (success or error) */
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #d9534f; /* red for errors */
+}
+
+.message:contains("✅") {
+  color: #28a745; /* green for success */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .login-container {
+    width: 90%;
+    padding: 30px 25px;
+  }
+
+  .login-container h2 {
+    font-size: 22px;
+  }
+}

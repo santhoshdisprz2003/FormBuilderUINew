@@ -1,0 +1,582 @@
+.question-card {
+  background: #fff;
+  border: 1px solid #8b5cf6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: grab;
+  overflow: hidden;
+   box-sizing: border-box;
+}
+
+.question-card:active {
+  cursor: grabbing;
+}
+
+.question-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Question Input */
+.question-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.question-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Character Count */
+.char-count {
+  font-size: 12px;
+  color: #9ca3af;
+  align-self: flex-end;
+  margin-top: -8px;
+}
+
+/* Description Input */
+.description-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.description-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Field Type Display (Disabled) */
+.field-type-display {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+  outline: none;
+}
+
+/* Question Actions Row */
+.question-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap:12px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Action Buttons (Copy & Delete) */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  border: none;
+  background: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+  transform: translateY(-1px);
+}
+
+/* Toggle Options (Description & Required) */
+.toggle-options {
+  display: flex;
+  align-items: center; /* align items in a single row */
+  gap: 20px; /* spacing between Description and Required */
+  margin-top: 4px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center; /* vertically align text and switch */
+  gap: 8px;
+  margin-top: 0; /* remove negative margin from earlier version */
+}
+
+.toggle-text {
+    font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+  line-height: 20px; /* matches switch height for perfect centering */
+  margin: 0;
+}
+
+/* Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: #8b5cf6;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 20px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Required Indicator */
+.required-indicator {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+  align-self: flex-start;
+  margin-top: -4px;
+}
+
+/* Dragging State */
+.question-card.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+
+/* Date Picker Container */
+.date-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Date Input Wrapper */
+.date-input-wrapper {
+  position: relative;
+  width: 95%;
+  box-sizing: border-box;
+}
+
+.date-picker-input {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  color: transparent;
+  cursor: pointer;
+}
+
+.date-picker-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  opacity: 0;
+  width: 24px;
+  height: 24px;
+  z-index: 2;
+}
+
+.date-picker-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+.date-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Date Format Section */
+.date-format-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-format-label {
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.date-format-options {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #8b5cf6;
+}
+
+.radio-text {
+  font-size: 13px;
+  color: #4b5563;
+  user-select: none;
+}
+
+.radio-option:hover .radio-text {
+  color: #374151;
+}
+
+/* Dropdown Container */
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+   width: 100%;
+  box-sizing: border-box;
+}
+
+/* Options List */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Option Item */
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.option-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 0 8px;
+}
+
+.option-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.option-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+.option-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Add Option Button */
+.add-option-btn {
+  align-self: flex-start;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8b5cf6;
+  background: #f5f3ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-option-btn:hover {
+  background: #ede9fe;
+  border-color: #d8b4fe;
+}
+
+/* Selection Type Section */
+.selection-type-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selection-type-label {
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.selection-type-options {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+
+/* File Upload Container */
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+   width: 100%;
+  box-sizing: border-box;
+}
+
+.file-upload-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  cursor: not-allowed;
+}
+
+.file-upload-icon {
+  font-size: 24px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.file-upload-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.file-upload-title {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.file-upload-info {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+
+/* Number Field Container */
+.number-field-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+   width: 100%;
+  box-sizing: border-box;
+}
+
+.number-field-display {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+  outline: none;
+  text-align: left;
+}
+
+
+.action-icon{
+  width: 24px;
+  height: 24px;
+}
+
+/* Limit field width so they don’t touch the question box edge */
+.question-card input,
+.question-card select,
+.question-card textarea,
+.question-card .field-type-display,
+.question-card .date-input-wrapper,
+.question-card .dropdown-container,
+.question-card .file-upload-container,
+.question-card .number-field-container {
+  width: calc(100% - 32px);  /* leave 16px padding on both sides */
+  margin-right: 16px;
+  box-sizing: border-box;
+}
+
+/* Ensure the content aligns well even in flex containers */
+.question-card .date-input-wrapper,
+.question-card .dropdown-container,
+.question-card .file-upload-container,
+.question-card .number-field-container {
+  align-self: flex-start;
+}
+
+
+/* --- Character count inside question input --- */
+.question-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.question-input {
+  width: 100%;
+  padding: 10px 40px 10px 12px; /* extra right padding for count */
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.char-count {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #9ca3af;
+  background: #fff;
+  padding-left: 4px;
+  pointer-events: none;
+}
+
+
+/* Description Input Wrapper */
+.description-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.description-input {
+  width: 100%;
+  padding: 10px 40px 10px 12px; /* extra right padding for count */
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.description-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Char Count (shared styling) */
+.char-count {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #9ca3af;
+  background: #fff;
+  padding-left: 4px;
+  pointer-events: none;
+}

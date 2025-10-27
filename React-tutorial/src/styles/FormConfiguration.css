@@ -1,0 +1,130 @@
+/* ===== FORM SECTION (white content card) ===== */
+.form-section {
+  background: #FFFFFF;
+  border: 1px solid #E2E2E2;
+  border-top: none;
+  padding: 24px 32px;
+  border-radius: 0 0 8px 8px;
+  margin-top: -1px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F1F1F;
+  margin-bottom: 20px;
+  line-height: 20px;
+  font-family: "Lato", sans-serif;
+}
+
+/* ===== FORM FIELDS ===== */
+.form-group {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1F1F1F;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #CFCFCF;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  font-family: "Lato", sans-serif;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border-color: #5D38DF;
+}
+
+textarea {
+  min-height: 80px;
+}
+
+.char-count {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* ===== VISIBILITY TOGGLE ===== */
+.visibility {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #CFCFCF;
+  transition: 0.4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #5D38DF;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.help-text {
+  font-size: 12px;
+  color: #666;
+  margin-left: 5px;
+  flex-basis: 100%;
+}

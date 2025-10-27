@@ -1,0 +1,55 @@
+.draggable-field {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 284px;
+  height: 56px;
+  padding-left: 60px; /* more space for icon circle */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.draggable-field:hover {
+  background: #f8f9fb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Border container around icon */
+.icon-border {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  border: 2px solid #ccc; /* default */
+  border-radius: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9); /* subtle white layer */
+}
+
+.icon-border[style] {
+  background-color: var(--borderColor);
+}
+
+/* Icon inside border */
+.field-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+   /* background: transparent; */
+}
+
+/* Field label */
+.label {
+  font-size: 14px;
+  color: #333;
+  margin-left: 8px;
+  font-weight: 500;
+}

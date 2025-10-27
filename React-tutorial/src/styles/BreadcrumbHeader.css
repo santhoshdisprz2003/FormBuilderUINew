@@ -1,0 +1,49 @@
+.breadcrumb-header {
+  width: 100%;
+  background-color: #fafafa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  font-family: "Inter", sans-serif;
+}
+
+.breadcrumb-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.breadcrumb-home-icon {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.home-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.arrow-icon {
+  width: 24px;
+  height: 24px;
+  margin: 0 6px;
+  vertical-align: middle;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+}
+
+.breadcrumb-link:hover {
+  color: #000;
+}
+
+.breadcrumb-current {
+  color: #111;
+  font-weight: 600;
+}
