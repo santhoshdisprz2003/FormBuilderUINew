@@ -102,20 +102,20 @@ export default function ViewFormLayout({ formData }) {
 
               {/* Dropdown (rendered as radio buttons) */}
               {q.type === "drop-down" && (
-  <div className="dropdown-display">
-    {q.options?.length > 0 ? (
-      <div className="dropdown-field" readOnly>
-        {q.options.map((opt, i) => (
-          <div key={i} className="dropdown-option">
-            {opt.value || opt}
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p className="no-options">No options available</p>
-    )}
-  </div>
-)}
+                <div className="dropdown-display">
+                  {q.options?.length > 0 ? (
+                    <div className="dropdown-field" readOnly>
+                      {q.options.map((opt, i) => (
+                        <div key={i} className="dropdown-option">
+                          {opt.value || opt}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-options">No options available</p>
+                  )}
+                </div>
+              )}
 
               {/* File Upload */}
               {q.type === "file-upload" && (

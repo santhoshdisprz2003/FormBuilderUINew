@@ -4,6 +4,7 @@ import "../styles/CreateForm.css";
 import EyeIcon from "../assets/Eye.png";
 import FormConfiguration from "./FormConfiguration";
 import FormLayout from "./FormLayout";
+import FormPreviewModal from "./FormPreviewModal";
 
 import ShortTextIcon from "../assets/ShortTextIcon.png";
 import LongTextIcon from "../assets/LongTextIcon.png";
@@ -18,6 +19,10 @@ export default function CreateForm() {
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState(false);
   const [fields, setFields] = useState([]);
+
+   const [showPreview, setShowPreview] = useState(false);
+
+  const handlePreview = () => setShowPreview(true);
 
   const inputFields = [
   { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#4F46E5" },
@@ -39,7 +44,6 @@ export default function CreateForm() {
 
   const handleDelete = (index) => setFields(fields.filter((_, i) => i !== index));
   const handleCopy = (index) => setFields([...fields, { ...fields[index], id: Date.now() }]);
-  const handlePreview = () => console.log("Preview form");
 
   return (
     <div className="create-form-container">
@@ -109,6 +113,13 @@ export default function CreateForm() {
     )}
   </div>
 </div>
+ <FormPreviewModal
+        show={showPreview}
+        onClose={() => setShowPreview(false)}
+        formName={formName}
+        description={description}
+        fields={fields}
+      />
 
     </div>
   );

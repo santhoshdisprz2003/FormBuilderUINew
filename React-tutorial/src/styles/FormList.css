@@ -267,10 +267,12 @@
 /* Add these styles to your existing FormList.css */
 
 .card-meta {
-  margin-top: 8px;
+  margin-top: 15px;
   display: flex;
+ border-bottom: 1px solid #e5e7eb;
   flex-direction: column;
   gap: 4px;
+   padding-bottom: 6px;
 }
 
 .meta-text {
