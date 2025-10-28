@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/QuestionCard.css";
 import CopyIcon from "../assets/CopyIcon.png";
 import DeleteIcon from "../assets/DeleteIcon.png";
+import CalendarIcon from "../assets/CalendarIcon.png";
 
 export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate }) {
   const [question, setQuestion] = useState(field.question || "");
@@ -102,9 +103,17 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
               className="date-picker-input"
             />
             <span className="date-placeholder">
-              {selectedDate ? formatDateToDisplay(selectedDate, dateFormat) : dateFormat}
+              {selectedDate
+                ? formatDateToDisplay(selectedDate, dateFormat)
+                : dateFormat}
             </span>
+            <img
+              src={CalendarIcon}  // <-- use your own icon here
+              alt="calendar"
+              className="calendar-icon"
+            />
           </div>
+
 
           <div className="date-format-section">
             <label className="date-format-label">Date Format</label>
@@ -157,7 +166,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
       <div className="question-actions">
         <div className="action-buttons">
           <button onClick={() => onCopy(index)} className="action-btn">
-            <img src={CopyIcon} alt="copy" className="action-icon"/>
+            <img src={CopyIcon} alt="copy" className="action-icon" />
           </button>
           <button onClick={() => onDelete(index)} className="action-btn">
             <img src={DeleteIcon} alt="delete" className="action-icon" />

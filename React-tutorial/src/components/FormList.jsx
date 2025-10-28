@@ -164,7 +164,12 @@ export default function FormList({
                 </span>
                 <button
                   className="viewresponse-btn"
-                  
+                  onClick={() =>
+                    navigate(`/form-builder/view/${form.id}`, {
+                      state: { openTab: "responses" }, // 👈 pass tab info here
+                    })
+                  }
+
                 >
                   View Responses
                 </button>

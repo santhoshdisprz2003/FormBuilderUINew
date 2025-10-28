@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import "../styles/CreateForm.css";
 import "../styles/FormLayout.css";
 import FormConfiguration from "./FormConfiguration";
 import ViewFormLayout from "./ViewFormLayout";
 import { getFormById } from "../api/formService.js"; 
+import FormResponses from "./FormResponses";
+import { useParams, useLocation } from "react-router-dom";
+
+
 
 export default function ViewForm() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState("configuration");
+   const location = useLocation();
+   const [activeTab, setActiveTab] = useState(location.state?.openTab || "configuration");
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -77,11 +81,8 @@ export default function ViewForm() {
           <ViewFormLayout formData={formData} />
         )}
 
-        {activeTab === "responses" && (
-          <div className="responses-tab">
-            <p>Responses section coming soon...</p>
-          </div>
-        )}
+        {activeTab === "responses" && <FormResponses />}
+
       </div>
     </div>
   );
