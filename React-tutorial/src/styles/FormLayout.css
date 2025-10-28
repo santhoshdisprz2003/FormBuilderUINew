@@ -71,25 +71,32 @@
 }
 
 .form-header-box {
-  border: 2px solid #7c3aed;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  border-top: 4px solid #7c3aed; /* Only top border visible */
+  border-radius: 10px 10px 0 0;
+  background-color: #f9f9f9; /* Soft background */
+  padding: 1.5rem 1rem 1rem;
   position: relative;
+  margin-bottom: 1.5rem;
+  margin-top: 10px;
 }
 
 .form-header-title {
   position: absolute;
-  top: -12px;
-  left: 10px;
-  background: #fff;
-  padding: 0 8px;
-  color: #7c3aed;
-  font-size: 0.8rem;
+  top: -26px; /* lift it slightly above the top border */
+  left: 2px;
+  background-color: #7c3aed; /* same as border color */
+  color: white; /* text stands out */
+  font-size: 0.85rem;
   font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px 6px 0 0; /* smooth top shape */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* optional subtle depth */
+  
+  
 }
 
-.header-input,
+
+/* .header-input,
 .header-textarea {
   width: 97% !important;
   border: 1px solid #e1e1e1;
@@ -110,7 +117,36 @@
 .header-textarea {
   margin-top: 0.8rem;
   height: 70px;
+} */
+
+.form-title {
+    font-family: 'Lato', sans-serif;
+    font-weight: 600;
+    font-style: normal; /* SemiBold corresponds to weight 600 */
+    font-size: 20px;
+    line-height: 20px;
+    letter-spacing: 0px;
+    vertical-align: middle;
+    color: #000;
+    margin-bottom: 4px;
+    margin-top: 1px;
+    margin-left: 15px;
 }
+
+.form-description {
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-style: normal; /* Regular corresponds to weight 400 */
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0px;
+    vertical-align: middle;
+    color: #333;
+    margin-top: 0;
+     margin-left: 15px;
+}
+
+
 
 .field-wrapper {
   position: relative;

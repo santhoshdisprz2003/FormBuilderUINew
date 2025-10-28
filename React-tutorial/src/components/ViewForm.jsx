@@ -35,10 +35,7 @@ export default function ViewForm() {
 
   return (
     <div className="create-form-container">
-      {/* ✅ Breadcrumb */}
-      <div className="breadcrumb">
-        <span>Form Builder</span> &gt; <span>View Form</span>
-      </div>
+      
 
       {/* ✅ Tab Buttons */}
       <div className="tab-container">

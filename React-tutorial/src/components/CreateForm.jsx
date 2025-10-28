@@ -48,20 +48,27 @@ export default function CreateForm() {
   return (
     <div className="create-form-container">
       {/* Tabs */}
-      <div className="tab-container">
-        <button
-          className={`tab ${activeTab === "configuration" ? "active" : ""}`}
-          onClick={() => setActiveTab("configuration")}
-        >
-          Form Configuration
-        </button>
-        <button
-          className={`tab ${activeTab === "layout" ? "active" : ""}`}
-          onClick={() => setActiveTab("layout")}
-        >
-          Form Layout
-        </button>
-      </div>
+     <div className="tab-container">
+  <button
+    className={`tab ${activeTab === "configuration" ? "active" : ""}`}
+    onClick={() => setActiveTab("configuration")}
+  >
+    Form Configuration
+  </button>
+
+  <button
+    className={`tab ${activeTab === "layout" ? "active" : ""} ${
+      !formName.trim() ? "disabled" : ""
+    }`}
+    onClick={() => {
+      if (formName.trim()) setActiveTab("layout");
+    }}
+    disabled={!formName.trim()}
+  >
+    Form Layout
+  </button>
+</div>
+
 
       {/* Render Tab */}
       {activeTab === "configuration" ? (

@@ -57,7 +57,7 @@
 }
 
 /* Header */
-.form-header-box {
+/* .form-header-box {
   background: white;
   padding: 20px;
   border: 1px solid #e5e7eb;
@@ -68,7 +68,7 @@
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 10px;
-}
+} */
 
 .header-input,
 .header-textarea {
@@ -83,12 +83,12 @@
 }
 
 /* Questions */
-.question-card {
+/* .question-card {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 16px;
-}
+} */
 
 .question-label {
   font-weight: 500;

@@ -158,25 +158,29 @@
 }
 
 .status-btn.published {
-  background-color: #5cac7a;
+  color: #3AB876;
+  background-color: #80D8BC40;
+  border-color: #3AB876;
 }
 
 .status-btn.draft {
-  background-color: #cd9f5f;
+  color: #F6A609 ;
+  background-color: #FEF4E1;
+  border-color: #F6A609;
 }
 
-.view-btn {
+.viewresponse-btn {
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
   background-color:#5D38DF;
-  /* color: white; */
+  color: white; 
   font-size: 0.875rem;
   border: none;
   cursor: pointer;
 }
 
-.view-btn:hover {
-  background-color: #5D38DF;
+.viewresponse-btn:hover {
+  background-color: #7c3aed;
 }
 
 /* Popup styles */

@@ -117,7 +117,7 @@ export default function FormList({
                         </button>
                       ) : (
                         <button
-                          className="view-btn"
+                          className="edit-btn"
                           onClick={() => navigate(`/form-builder/edit/${form.id}`)}
                         >
                           Edit Form
@@ -163,8 +163,8 @@ export default function FormList({
                   {getStatusText(form?.status)}
                 </span>
                 <button
-                  className="view-btn"
-                  onClick={() => handleViewForm(form.id)}
+                  className="viewresponse-btn"
+                  
                 >
                   View Responses
                 </button>

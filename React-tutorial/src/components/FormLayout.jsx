@@ -9,7 +9,7 @@ import DragFieldIcon from "../assets/DragFieldIcon.png";
 export default function FormLayout({
     inputFields,
     fields,
-      setFields, 
+    setFields,
     formName,
     description,
     handleDrop,
@@ -41,30 +41,15 @@ export default function FormLayout({
 
                     {/* Form Name */}
                     <div className="field-wrapper">
-                        <input
-                            type="text"
-                            placeholder="Form Name"
-                            className="header-input"
-                            maxLength={80}
-                            value={formName}
-                            onChange={(e) => setFormName(e.target.value)}
-                        />
-                        <span className="char-count right">{formName.length}/80</span>
+                        <h2 className="form-title">{formName || "Untitled Form"}</h2>
                     </div>
 
                     {/* Description */}
-                    <div className="field-wrapper">
-                        <textarea
-                            placeholder="Form Description (optional)"
-                            className="header-textarea"
-                            maxLength={200}
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-                        <span className="char-count right desc">
-                            {description.length}/200
-                        </span>
-                    </div>
+                    {description && (
+                        <div className="field-wrapper">
+                            <p className="form-description">{description}</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Drop zone */}
@@ -83,19 +68,19 @@ export default function FormLayout({
 
 
                 {fields.map((field, i) => (
-  <QuestionCard
-    key={i}
-    field={field}
-    index={i}
-    onDelete={handleDelete}
-    onCopy={handleCopy}
-    onUpdate={(idx, updatedField) => {
-      const newFields = [...fields];
-      newFields[idx] = updatedField;
-      setFields(newFields);
-    }}
-  />
-))}
+                    <QuestionCard
+                        key={i}
+                        field={field}
+                        index={i}
+                        onDelete={handleDelete}
+                        onCopy={handleCopy}
+                        onUpdate={(idx, updatedField) => {
+                            const newFields = [...fields];
+                            newFields[idx] = updatedField;
+                            setFields(newFields);
+                        }}
+                    />
+                ))}
 
             </div>
         </div>
