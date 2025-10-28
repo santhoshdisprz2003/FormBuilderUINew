@@ -77,6 +77,7 @@ export default function CreateForm() {
         <FormLayout
           inputFields={inputFields}
           fields={fields}
+          setFields={setFields}  
           formName={formName}
           description={description}
           handleDrop={handleDrop}

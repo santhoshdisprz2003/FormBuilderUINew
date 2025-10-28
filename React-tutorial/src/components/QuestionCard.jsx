@@ -1,38 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/QuestionCard.css";
 import CopyIcon from "../assets/CopyIcon.png";
 import DeleteIcon from "../assets/DeleteIcon.png";
 
+export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate }) {
+  const [question, setQuestion] = useState(field.question || "");
+  const [description, setDescription] = useState(field.description || "");
+  const [showDescription, setShowDescription] = useState(field.showDescription || false);
+  const [required, setRequired] = useState(field.required || false);
+  const [dateFormat, setDateFormat] = useState(field.dateFormat || "DD/MM/YYYY");
+  const [selectedDate, setSelectedDate] = useState(field.selectedDate || "");
+  const [selectionType, setSelectionType] = useState(field.selectionType || "single");
+  const [options, setOptions] = useState(field.options || [{ id: 1, value: "Option 1" }]);
 
-export default function QuestionCard({ field, index, onDelete, onCopy }) {
-  const [question, setQuestion] = useState("");
-  const [description, setDescription] = useState("");
-  const [showDescription, setShowDescription] = useState(false);
-  const [required, setRequired] = useState(false);
-  const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectionType, setSelectionType] = useState("single");
-  const [options, setOptions] = useState([
-    { id: 1, value: "Option 1" }
-  ]);
-
-  const formatDateToDisplay = (date, format) => {
-    if (!date) return "";
-    const dateObj = new Date(date);
-    const day = String(dateObj.getDate()).padStart(2, "0");
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const year = dateObj.getFullYear();
-
-    if (format === "DD/MM/YYYY") {
-      return `${day}/${month}/${year}`;
-    } else {
-      return `${month}-${day}-${year}`;
-    }
-  };
-
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-  };
+  // 🔄 Keep parent in sync
+  useEffect(() => {
+    onUpdate(index, {
+      ...field,
+      question,
+      description,
+      showDescription,
+      required,
+      dateFormat,
+      selectedDate,
+      selectionType,
+      options,
+    });
+  }, [question, description, showDescription, required, dateFormat, selectedDate, selectionType, options]);
 
   const handleAddOption = () => {
     const newId = options.length + 1;
@@ -40,19 +34,27 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
   };
 
   const handleOptionChange = (id, value) => {
-    setOptions(options.map(opt => opt.id === id ? { ...opt, value } : opt));
+    setOptions(options.map((opt) => (opt.id === id ? { ...opt, value } : opt)));
   };
 
   const handleDeleteOption = (id) => {
     if (options.length > 1) {
-      setOptions(options.filter(opt => opt.id !== id));
+      setOptions(options.filter((opt) => opt.id !== id));
     }
+  };
+
+  const formatDateToDisplay = (date, format) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return format === "DD/MM/YYYY" ? `${day}/${month}/${year}` : `${month}-${day}-${year}`;
   };
 
   return (
     <div className="question-card">
       {/* Question Input */}
-      {/* Question Input with Char Count */}
       <div className="question-input-wrapper">
         <input
           type="text"
@@ -65,7 +67,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
         <span className="char-count">{question.length}/150</span>
       </div>
 
-      {/* Description Input with Char Count */}
+      {/* Description Input */}
       {showDescription && (
         <div className="description-input-wrapper">
           <input
@@ -80,7 +82,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
         </div>
       )}
 
-      {/* Field Type Display for Short Text and Long Text */}
+      {/* Field-Specific UI */}
       {field.maxChar && (
         <input
           type="text"
@@ -90,69 +92,56 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
         />
       )}
 
-      {/* Date Picker Field */}
       {field.type === "date-picker" && (
         <div className="date-picker-container">
           <div className="date-input-wrapper">
             <input
               type="date"
               value={selectedDate}
-              onChange={handleDateChange}
+              onChange={(e) => setSelectedDate(e.target.value)}
               className="date-picker-input"
             />
             <span className="date-placeholder">
               {selectedDate ? formatDateToDisplay(selectedDate, dateFormat) : dateFormat}
             </span>
-            <span className="calendar-icon">📅</span>
           </div>
 
           <div className="date-format-section">
             <label className="date-format-label">Date Format</label>
             <div className="date-format-options">
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name={`dateFormat-${index}`}
-                  value="DD/MM/YYYY"
-                  checked={dateFormat === "DD/MM/YYYY"}
-                  onChange={(e) => setDateFormat(e.target.value)}
-                />
-                <span className="radio-text">DD/MM/YYYY</span>
-              </label>
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name={`dateFormat-${index}`}
-                  value="MM-DD-YYYY"
-                  checked={dateFormat === "MM-DD-YYYY"}
-                  onChange={(e) => setDateFormat(e.target.value)}
-                />
-                <span className="radio-text">MM-DD-YYYY</span>
-              </label>
+              {["DD/MM/YYYY", "MM-DD-YYYY"].map((fmt) => (
+                <label key={fmt} className="radio-option">
+                  <input
+                    type="radio"
+                    name={`dateFormat-${index}`}
+                    value={fmt}
+                    checked={dateFormat === fmt}
+                    onChange={(e) => setDateFormat(e.target.value)}
+                  />
+                  <span className="radio-text">{fmt}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* Dropdown Field */}
       {field.type === "dropdown" && (
         <div className="dropdown-container">
           <div className="options-list">
-            {options.map((option, idx) => (
-              <div key={option.id} className="option-item">
-                <span className="option-number">{idx + 1}</span>
+            {options.map((opt, i) => (
+              <div key={opt.id} className="option-item">
+                <span className="option-number">{i + 1}</span>
                 <input
                   type="text"
-                  value={option.value}
-                  onChange={(e) => handleOptionChange(option.id, e.target.value)}
+                  value={opt.value}
+                  onChange={(e) => handleOptionChange(opt.id, e.target.value)}
                   className="option-input"
-                  placeholder={`Option ${idx + 1}`}
                 />
                 {options.length > 1 && (
                   <button
-                    onClick={() => handleDeleteOption(option.id)}
+                    onClick={() => handleDeleteOption(opt.id)}
                     className="option-delete-btn"
-                    title="Delete option"
                   >
                     ✕
                   </button>
@@ -160,95 +149,24 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
               </div>
             ))}
           </div>
-
-          <button onClick={handleAddOption} className="add-option-btn">
-            + Add option
-          </button>
-
-          <div className="selection-type-section">
-            <label className="selection-type-label">Selection Type</label>
-            <div className="selection-type-options">
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name={`selectionType-${index}`}
-                  value="single"
-                  checked={selectionType === "single"}
-                  onChange={(e) => setSelectionType(e.target.value)}
-                />
-                <span className="radio-text">Single select</span>
-              </label>
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name={`selectionType-${index}`}
-                  value="multi"
-                  checked={selectionType === "multi"}
-                  onChange={(e) => setSelectionType(e.target.value)}
-                />
-                <span className="radio-text">Multi select</span>
-              </label>
-            </div>
-          </div>
+          <button onClick={handleAddOption} className="add-option-btn">+ Add option</button>
         </div>
       )}
 
-      {/* File Upload Field */}
-      {field.type === "file-upload" && (
-        <div className="file-upload-container">
-          <div className="file-upload-display">
-            <span className="file-upload-icon">📎</span>
-            <div className="file-upload-text">
-              <div className="file-upload-title">File upload (only one file allowed)</div>
-              <div className="file-upload-info">Supported files: PDF, JPG, PNG | Max file size 2 MB</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Number Field */}
-      {field.type === "number" && (
-        <div className="number-field-container">
-          <input
-            type="text"
-            value="Numeric value"
-            disabled
-            className="number-field-display"
-          />
-        </div>
-      )}
-
-      {/* Actions Row */}
+      {/* Actions */}
       <div className="question-actions">
         <div className="action-buttons">
-          <button
-            onClick={() => onCopy(index)}
-            className="action-btn copy-btn"
-            title="Copy"
-          >
-            <img
-              src={CopyIcon}
-              alt="Copy"
-              className="action-icon"
-            />
+          <button onClick={() => onCopy(index)} className="action-btn">
+            <img src={CopyIcon} alt="copy" className="action-icon"/>
           </button>
-
-          <button
-            onClick={() => onDelete(index)}
-            className="action-btn delete-btn"
-            title="Delete"
-          >
-            <img
-              src={DeleteIcon}
-              alt="Delete"
-              className="action-icon"
-            />
+          <button onClick={() => onDelete(index)} className="action-btn">
+            <img src={DeleteIcon} alt="delete" className="action-icon" />
           </button>
         </div>
 
         <div className="toggle-options">
           <div className="toggle-item">
-            <span className="toggle-text">Description</span>
+            <span>Description</span>
             <label className="switch">
               <input
                 type="checkbox"
@@ -260,7 +178,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
           </div>
 
           <div className="toggle-item">
-            <span className="toggle-text">Required</span>
+            <span>Required</span>
             <label className="switch">
               <input
                 type="checkbox"
@@ -273,7 +191,6 @@ export default function QuestionCard({ field, index, onDelete, onCopy }) {
         </div>
       </div>
 
-      {/* Required Indicator */}
       {required && <span className="required-indicator">* Required</span>}
     </div>
   );

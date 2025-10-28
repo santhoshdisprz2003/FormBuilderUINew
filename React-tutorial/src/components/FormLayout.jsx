@@ -9,6 +9,7 @@ import DragFieldIcon from "../assets/DragFieldIcon.png";
 export default function FormLayout({
     inputFields,
     fields,
+      setFields, 
     formName,
     description,
     handleDrop,
@@ -71,7 +72,7 @@ export default function FormLayout({
                     <div className="form-drop-zone">
                         <div className="drag-panel">
                             <img
-                                src={DragFieldIcon} 
+                                src={DragFieldIcon}
                                 alt="drag icon"
                                 className="drag-icon"
                             />
@@ -82,14 +83,20 @@ export default function FormLayout({
 
 
                 {fields.map((field, i) => (
-                    <QuestionCard
-                        key={field.id}
-                        field={field}
-                        index={i}
-                        onDelete={handleDelete}
-                        onCopy={handleCopy}
-                    />
-                ))}
+  <QuestionCard
+    key={i}
+    field={field}
+    index={i}
+    onDelete={handleDelete}
+    onCopy={handleCopy}
+    onUpdate={(idx, updatedField) => {
+      const newFields = [...fields];
+      newFields[idx] = updatedField;
+      setFields(newFields);
+    }}
+  />
+))}
+
             </div>
         </div>
     );
