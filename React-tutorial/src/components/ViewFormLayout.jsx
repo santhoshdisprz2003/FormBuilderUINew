@@ -120,11 +120,11 @@ export default function ViewFormLayout({ formData }) {
               {/* File Upload */}
               {q.type === "file-upload" && (
                 <div className="file-upload-display">
-                  <div className="file-upload-icon">📁</div>
+                  <div className="file-upload-icon"></div>
                   <div className="file-upload-text">
                     <span className="file-upload-title">Upload a file</span>
                     <span className="file-upload-info">
-                      Max 25 MB • Formats: PDF, DOCX, JPG
+                      Max 25 MB | Formats: PDF, DOCX, JPG
                     </span>
                   </div>
                 </div>

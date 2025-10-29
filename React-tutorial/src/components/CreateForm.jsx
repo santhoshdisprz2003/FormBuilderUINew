@@ -1,5 +1,5 @@
-// src/components/CreateForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams,useNavigate } from "react-router-dom";
 import "../styles/CreateForm.css";
 import EyeIcon from "../assets/Eye.png";
 import FormConfiguration from "./FormConfiguration";
@@ -12,28 +12,31 @@ import DatePickerIcon from "../assets/DatePickerIcon.png";
 import DropDownIcon from "../assets/DropDownIcon.png";
 import FileUploadIcon from "../assets/FileUploadIcon.png";
 import NumberIcon from "../assets/NumberIcon.png";
+
 import {
   createFormConfig,
   updateFormConfig,
   createFormLayout,
   updateFormLayout,
-  publishForm
+  publishForm,
+  getFormById
 } from "../api/formService";
 
-
-export default function CreateForm() {
+export default function CreateForm({ mode = "create" }) {
+  const { formId: paramFormId } = useParams();
   const [activeTab, setActiveTab] = useState("configuration");
   const [formName, setFormName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState(false);
   const [fields, setFields] = useState([]);
   const [formId, setFormId] = useState(null);
-
-
   const [showPreview, setShowPreview] = useState(false);
 
   const handlePreview = () => setShowPreview(true);
+  const navigate = useNavigate();
 
+
+  // Available input field types
   const inputFields = [
     { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#4F46E5" },
     { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: LongTextIcon, borderColor: "#7B61FF40" },
@@ -43,37 +46,68 @@ export default function CreateForm() {
     { id: 6, label: "Number", type: "number", icon: NumberIcon, borderColor: "#F3CCE1" },
   ];
 
+  // 🔹 Load existing form if in edit mode
+  useEffect(() => {
+    if (mode === "edit" && paramFormId) {
+      (async () => {
+        try {
+          const existingForm = await getFormById(paramFormId);
+
+          setFormId(existingForm.id);
+          setFormName(existingForm.config.title || "");
+          setDescription(existingForm.config.description || "");
+          setVisibility(existingForm.config.visibility || false);
+
+          // Map layout fields back into UI format
+          const loadedFields = existingForm.layout?.fields?.map((f) => ({
+            id: f.id,
+            label: f.label,
+            question: f.label,
+            type: f.type,
+            descriptionEnabled: f.descriptionEnabled,
+            description: f.description,
+            singleChoice: f.singleChoice,
+            multipleChoice: f.multipleChoice,
+            options: f.options || [],
+            format: f.format,
+            required: f.required,
+            order: f.order,
+          })) || [];
+
+          setFields(loadedFields);
+        } catch (err) {
+          console.error("❌ Failed to load form for editing:", err);
+          alert("Error loading form data for editing.");
+        }
+      })();
+    }
+  }, [mode, paramFormId]);
+
+  // --- Save Draft Logic ---
   const handleSaveDraft = async () => {
     try {
       if (activeTab === "configuration") {
-        // --- Save Config Draft ---
         const configData = { title: formName, description, visibility };
-
         if (!formId) {
           const response = await createFormConfig(configData);
           setFormId(response.id);
           alert("✅ Form configuration saved as draft!");
+          navigate("/"); // redirect to home after saving draft
           return response.id;
         } else {
           await updateFormConfig(formId, configData);
           alert("✅ Form configuration updated!");
+          navigate("/"); // redirect to home after saving draft
           return formId;
         }
-      }
-
-      else if (activeTab === "layout") {
-        // --- Save Layout Draft ---
+      } else if (activeTab === "layout") {
         if (!formId) {
           alert("Please save configuration first before layout draft!");
           return;
         }
 
         const layoutData = {
-          headerCard: {
-            id: Date.now().toString(),
-            title: formName,
-            description,
-          },
+          headerCard: { id: Date.now().toString(), title: formName, description },
           fields: fields.map((f, i) => ({
             id: f.id || i,
             questionId: f.questionId || Date.now().toString() + i,
@@ -83,20 +117,19 @@ export default function CreateForm() {
             description: f.description || "",
             singleChoice: f.singleChoice ?? false,
             multipleChoice: f.multipleChoice ?? false,
-            options:
-              f.options?.map((opt, idx) => ({
-                optionId: opt.optionId || idx.toString(),
-                value: opt.value || opt.label || opt || "",
-              })) || [],
+            options: f.options?.map((opt, idx) => ({
+              optionId: opt.optionId || idx.toString(),
+              value: opt.value || opt.label || opt || "",
+            })) || [],
             format: f.format || "",
             required: f.required ?? false,
             order: i,
           })),
         };
 
-        const res = await updateFormLayout(formId, layoutData);
-        console.log("🧾 Layout draft saved:", res);
+        await updateFormLayout(formId, layoutData);
         alert("✅ Form layout saved as draft!");
+        navigate("/"); // redirect to home after saving draft
       }
     } catch (err) {
       console.error("❌ Error saving draft:", err);
@@ -104,8 +137,7 @@ export default function CreateForm() {
     }
   };
 
-
-
+  // --- Publish Form ---
   const handlePublish = async () => {
     if (!formId) {
       alert("Please save the configuration first!");
@@ -114,69 +146,45 @@ export default function CreateForm() {
 
     try {
       const layoutData = {
-        headerCard: {
-          id: Date.now().toString(),
-          title: formName,
-          description,
-        },
+        headerCard: { id: Date.now().toString(), title: formName, description },
         fields: fields.map((f, i) => ({
           id: f.id || i,
           questionId: f.questionId || Date.now().toString() + i,
-          label: f.question || f.label || "Untitled Question", // ✅ store actual question
+          label: f.question || f.label || "Untitled Question",
           type: f.type,
           descriptionEnabled: f.descriptionEnabled ?? false,
           description: f.description || "",
           singleChoice: f.singleChoice ?? false,
           multipleChoice: f.multipleChoice ?? false,
-          options:
-            f.options?.map((opt, idx) => ({
-              optionId: opt.optionId || idx.toString(),
-              value: opt.value || opt.label || opt || "", // ✅ capture dropdown option text
-            })) || [],
+          options: f.options?.map((opt, idx) => ({
+            optionId: opt.optionId || idx.toString(),
+            value: opt.value || opt.label || opt || "",
+          })) || [],
           format: f.format || "",
           required: f.required ?? false,
           order: i,
         })),
       };
 
-      console.log("📦 Final layout payload:", JSON.stringify(layoutData, null, 2));
-
-      if (fields.length > 0) {
-        try {
-          const res = await updateFormLayout(formId, layoutData);
-          console.log("✅ Layout updated successfully!");
-          console.log("🧾 Layout API response:", res);
-        } catch (err) {
-          console.log("🧩 Fields before publish:", fields);
-          console.log("📦 Layout data to send (create):", layoutData);
-
-          const res = await createFormLayout(formId, layoutData);
-          console.log("✅ Layout created successfully!");
-          console.log("🧾 Layout API response:", res);
-        }
-      }
-
+      await updateFormLayout(formId, layoutData);
       const publishedForm = await publishForm(formId);
-      alert(`🚀 Form "${publishedForm.config.title}" published successfully!`);
+      alert(" Form published successfully!");
+      navigate("/"); // redirect to home after saving draft
     } catch (err) {
       console.error("Error publishing form:", err);
       alert("❌ Failed to publish form.");
     }
   };
 
-
-
-
-
+  // --- Drag and Drop handlers ---
   const handleDrop = (e) => {
     e.preventDefault();
     try {
       const data = e.dataTransfer.getData("text/plain");
       const field = JSON.parse(data);
       setFields([...fields, { ...field, id: Date.now() }]);
-    } catch (err) { }
+    } catch {}
   };
-
 
   const handleDelete = (index) => setFields(fields.filter((_, i) => i !== index));
   const handleCopy = (index) => setFields([...fields, { ...fields[index], id: Date.now() }]);
@@ -193,8 +201,7 @@ export default function CreateForm() {
         </button>
 
         <button
-          className={`tab ${activeTab === "layout" ? "active" : ""} ${!formName.trim() ? "disabled" : ""
-            }`}
+          className={`tab ${activeTab === "layout" ? "active" : ""} ${!formName.trim() ? "disabled" : ""}`}
           onClick={() => {
             if (formName.trim()) setActiveTab("layout");
           }}
@@ -203,7 +210,6 @@ export default function CreateForm() {
           Form Layout
         </button>
       </div>
-
 
       {/* Render Tab */}
       {activeTab === "configuration" ? (
@@ -247,25 +253,24 @@ export default function CreateForm() {
             <button
               className="next-btn"
               onClick={async () => {
-                const id = await handleSaveDraft();
-                if (id || formName.trim()) setActiveTab("layout");
+                 setActiveTab("layout");
               }}
               disabled={!formName.trim()}
             >
               Next
             </button>
-
           ) : (
             <button
               className="publish-btn"
               onClick={handlePublish}
               disabled={!fields.length}
             >
-              Publish Form
+              {mode === "edit" ? "Update Form" : "Publish Form"}
             </button>
           )}
         </div>
       </div>
+
       <FormPreviewModal
         show={showPreview}
         onClose={() => setShowPreview(false)}
@@ -273,7 +278,6 @@ export default function CreateForm() {
         description={description}
         fields={fields}
       />
-
     </div>
   );
 }

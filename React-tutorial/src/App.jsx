@@ -7,62 +7,63 @@ import BreadcrumbHeader from "./components/BreadcrumbHeader";
 import ViewForm from "./components/ViewForm";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+useEffect(() => {
+const token = localStorage.getItem("token");
+if (token) {
+setIsLoggedIn(true);
+}
+}, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-  };
+const handleLogout = () => {
+localStorage.removeItem("token");
+setIsLoggedIn(false);
+};
 
-  return (
-    <Router>
-      {/* ✅ Always show breadcrumb header above content */}
-      {isLoggedIn && <BreadcrumbHeader />}
+return (
+<Router>
+{/* ✅ Always show breadcrumb header above content */}
+{isLoggedIn && <BreadcrumbHeader />}
 
-      <Routes>
-  <Route path="/login" element={<Login />} />
+  <Routes>
+    <Route path="/login" element={<Login />} />
 
-  <Route
-    path="/"
-    element={
-      isLoggedIn ? (
-        <FormBuilderHome onLogout={handleLogout} />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
+    <Route
+      path="/"
+      element={
+        isLoggedIn ? (
+          <FormBuilderHome onLogout={handleLogout} />
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      }
+    />
 
-  <Route
-    path="/form-builder/view/:id"
-    element={
-      isLoggedIn ? (
-        <ViewForm />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
+    <Route
+      path="/form-builder/view/:id"
+      element={
+        isLoggedIn ? <ViewForm /> : <Navigate to="/login" replace />
+      }
+    />
 
-  <Route
-    path="/create-form"
-    element={
-      isLoggedIn ? (
-        <CreateForm />
-      ) : (
-        <Navigate to="/login" replace />
-      )
-    }
-  />
-</Routes>
+    {/* ✅ New Route: Edit Form */}
+    <Route
+      path="/form-builder/edit/:formId"
+      element={
+        isLoggedIn ? <CreateForm mode="edit" /> : <Navigate to="/login" replace />
+      }
+    />
 
-    </Router>
-  );
+    <Route
+      path="/create-form"
+      element={
+        isLoggedIn ? <CreateForm /> : <Navigate to="/login" replace />
+      }
+    />
+  </Routes>
+</Router>
+
+
+);
 }
