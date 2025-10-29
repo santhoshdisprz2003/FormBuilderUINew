@@ -3,6 +3,7 @@ import "../styles/QuestionCard.css";
 import CopyIcon from "../assets/CopyIcon.png";
 import DeleteIcon from "../assets/DeleteIcon.png";
 import CalendarIcon from "../assets/CalendarIcon.png";
+import FileSizeIcon from "../assets/FileSizeIcon.png";
 
 export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate }) {
   const [question, setQuestion] = useState(field.question || "");
@@ -18,9 +19,9 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
   useEffect(() => {
     onUpdate(index, {
       ...field,
-      question,
+      label: question,
       description,
-      showDescription,
+     descriptionEnabled: showDescription,
       required,
       dateFormat,
       selectedDate,
@@ -135,7 +136,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
         </div>
       )}
 
-      {field.type === "dropdown" && (
+      {field.type === "drop-down" && (
         <div className="dropdown-container">
           <div className="options-list">
             {options.map((opt, i) => (
@@ -159,8 +160,63 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
             ))}
           </div>
           <button onClick={handleAddOption} className="add-option-btn">+ Add option</button>
+          <div className="selection-type-section">
+            <label className="selection-type-label">Selection Type</label>
+            <div className="selection-type-options">
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name={`selectionType-${index}`}
+                  value="single"
+                  checked={selectionType === "single"}
+                  onChange={(e) => setSelectionType(e.target.value)}
+                />
+                <span className="radio-text">Single select</span>
+              </label>
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name={`selectionType-${index}`}
+                  value="multi"
+                  checked={selectionType === "multi"}
+                  onChange={(e) => setSelectionType(e.target.value)}
+                />
+                <span className="radio-text">Multi select</span>
+              </label>
+            </div>
+          </div>
         </div>
       )}
+
+       {/* File Upload Field */}
+      {field.type === "file-upload" && (
+        <div className="file-upload-container">
+          <div className="file-upload-display">
+            <img
+        src={FileSizeIcon}
+        alt="file upload"
+        className="file-upload-icon"
+      />
+            <div className="file-upload-text">
+              <div className="file-upload-title">File upload (only one file allowed)</div>
+              <div className="file-upload-info">Supported files: PDF, JPG, PNG | Max file size 2 MB</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Number Field */}
+      {field.type === "number" && (
+        <div className="number-field-container">
+          <input
+            type="text"
+            value="Numeric value"
+            disabled
+            className="number-field-display"
+          />
+        </div>
+      )}
+
 
       {/* Actions */}
       <div className="question-actions">

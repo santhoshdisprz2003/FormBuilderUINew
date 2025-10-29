@@ -53,9 +53,12 @@
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr); /* ✅ Exactly 3 cards per row */
+  gap: 2rem; /* ✅ Adjust spacing between cards */
+  justify-items: center; /* ✅ Center cards within grid columns */
+  align-items: start;
 }
+
 
 /* Card Layout */
 .card {
@@ -68,7 +71,7 @@
   min-height: 120px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s;
-  width:500px;
+  width:421px;
 }
 
 .card:hover {

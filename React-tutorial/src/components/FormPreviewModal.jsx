@@ -33,7 +33,7 @@ export default function FormPreviewModal({ show, onClose, formName, description,
                   <div className="question-content">
                     {/* Label */}
                     <label className="question-label">
-                      {q.question || "Untitled Question"}
+                      {q.question || q.label|| "Untitled Question"}
                       {q.required && <span className="required">*</span>}
                     </label>
 
@@ -64,7 +64,7 @@ export default function FormPreviewModal({ show, onClose, formName, description,
                       <input type="date" className="input-field"  />
                     )}
 
-                    {q.type === "dropdown" && (
+                    {q.type === "drop-down" && (
                       <select className="input-field" >
                         <option value="">Select an option</option>
                         {q.options?.map((opt, i) => (

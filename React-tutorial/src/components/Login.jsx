@@ -31,7 +31,7 @@ const Login = () => {
           {
             username,
             password,
-            role:"Admin"
+            role:"Learner"
           }
         );
         localStorage.setItem("token", response.data.token);

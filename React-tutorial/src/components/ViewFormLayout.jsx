@@ -70,9 +70,9 @@ export default function ViewFormLayout({ formData }) {
                 {q.required && <span className="required">*</span>}
               </div>
 
-              {q.descriptionEnabled && (
-                <p className="question-description">{q.description}</p>
-              )}
+              {(q.description_enabled || q.descriptionEnabled) && q.description && (
+  <p className="question-description">{q.description}</p>
+)}
 
               {/* ---------- Field Types ---------- */}
 
