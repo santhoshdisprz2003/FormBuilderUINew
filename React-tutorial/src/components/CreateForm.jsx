@@ -193,7 +193,7 @@ export default function CreateForm({ mode = "create" }) {
     <div className="create-form-container">
       {/* Tabs */}
       <div className="tab-container">
-        <button
+        <button 
           className={`tab ${activeTab === "configuration" ? "active" : ""}`}
           onClick={() => setActiveTab("configuration")}
         >
