@@ -84,57 +84,57 @@ export default function EditForm() {
   ];
 
   // 🧩 Save Draft handler
-  const handleSaveDraft = async () => {
-    try {
-      if (activeTab === "configuration") {
-        const configData = { title: formName, description, visibility };
-        await updateFormConfig(formId, configData);
-        alert("✅ Configuration draft updated!");
-      } else if (activeTab === "layout") {
-        const layoutData = {
-          headerCard: {
-            id: Date.now().toString(),
-            title: formName,
-            description,
-          },
-          fields: fields.map((f, i) => ({
-            id: f.id || i,
-            questionId: f.questionId || Date.now().toString() + i,
-            label: f.label || f.question || "Untitled Question",
-            type: f.type,
-            descriptionEnabled: f.descriptionEnabled ?? false,
-            description: f.description || "",
-            singleChoice: f.singleChoice ?? false,
-            multipleChoice: f.multipleChoice ?? false,
-            options:
-              f.options?.map((opt, idx) => ({
-                optionId: opt.optionId || idx.toString(),
-                value: opt.value || opt.label || opt || "",
-              })) || [],
-            format: f.format || "",
-            required: f.required ?? false,
-            order: i,
-          })),
-        };
-        await updateFormLayout(formId, layoutData);
-        alert("✅ Layout draft updated!");
-      }
-    } catch (err) {
-      console.error("❌ Error saving draft:", err);
-      alert("❌ Failed to save draft.");
-    }
-  };
+//   const handleSaveDraft = async () => {
+//     try {
+//       if (activeTab === "configuration") {
+//         const configData = { title: formName, description, visibility };
+//         await updateFormConfig(formId, configData);
+//         alert("✅ Form Configuration updated and saved as Draft!");
+//       } else if (activeTab === "layout") {
+//         const layoutData = {
+//           headerCard: {
+//             id: Date.now().toString(),
+//             title: formName,
+//             description,
+//           },
+//           fields: fields.map((f, i) => ({
+//             id: f.id || i,
+//             questionId: f.questionId || Date.now().toString() + i,
+//             label: f.label || f.question || "Untitled Question",
+//             type: f.type,
+//             descriptionEnabled: f.descriptionEnabled ?? false,
+//             description: f.description || "",
+//             singleChoice: f.singleChoice ?? false,
+//             multipleChoice: f.multipleChoice ?? false,
+//             options:
+//               f.options?.map((opt, idx) => ({
+//                 optionId: opt.optionId || idx.toString(),
+//                 value: opt.value || opt.label || opt || "",
+//               })) || [],
+//             format: f.format || "",
+//             required: f.required ?? false,
+//             order: i,
+//           })),
+//         };
+//         await updateFormLayout(formId, layoutData);
+//         alert("✅ Form Layout updated and saved as Draft!");
+//       }
+//     } catch (err) {
+//       console.error("❌ Error saving draft:", err);
+//       alert("❌ Failed to save draft.");
+//     }
+//   };
 
-  // 🚀 Publish handler
-  const handlePublish = async () => {
-    try {
-      await publishForm(formId);
-      alert("🚀 Form published successfully!");
-    } catch (err) {
-      console.error("❌ Failed to publish:", err);
-      alert("❌ Error publishing form.");
-    }
-  };
+//   // 🚀 Publish handler
+//   const handlePublish = async () => {
+//     try {
+//       await publishForm(formId);
+//       alert("🚀 Form published successfully!");
+//     } catch (err) {
+//       console.error("❌ Failed to publish:", err);
+//       alert("❌ Error publishing form.");
+//     }
+//   };
 
   // 🧲 Drag and Drop
   const handleDrop = (e) => {

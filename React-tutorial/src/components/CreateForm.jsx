@@ -91,12 +91,12 @@ export default function CreateForm({ mode = "create" }) {
         if (!formId) {
           const response = await createFormConfig(configData);
           setFormId(response.id);
-          alert("✅ Form configuration saved as draft!");
+          alert("✅ Form configuration created and saved as draft!");
           navigate("/"); // redirect to home after saving draft
           return response.id;
         } else {
           await updateFormConfig(formId, configData);
-          alert("✅ Form configuration updated!");
+          alert(" Form configuration updated and saved as draft!");
           navigate("/"); // redirect to home after saving draft
           return formId;
         }
@@ -128,7 +128,7 @@ export default function CreateForm({ mode = "create" }) {
         };
 
         await updateFormLayout(formId, layoutData);
-        alert("✅ Form layout saved as draft!");
+        alert(" Form layout Updated and saved as draft!");
         navigate("/"); // redirect to home after saving draft
       }
     } catch (err) {
@@ -168,7 +168,7 @@ export default function CreateForm({ mode = "create" }) {
 
       await updateFormLayout(formId, layoutData);
       const publishedForm = await publishForm(formId);
-      alert(" Form published successfully!");
+      alert(" Form published successfully...");
       navigate("/"); // redirect to home after saving draft
     } catch (err) {
       console.error("Error publishing form:", err);
@@ -265,7 +265,7 @@ export default function CreateForm({ mode = "create" }) {
               onClick={handlePublish}
               disabled={!fields.length}
             >
-              {mode === "edit" ? "Update Form" : "Publish Form"}
+              Publish Form
             </button>
           )}
         </div>
