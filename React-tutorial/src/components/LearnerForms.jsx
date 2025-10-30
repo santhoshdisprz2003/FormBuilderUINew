@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/LearnerForms.css";
 import { getAllForms } from "../api/formService";
+import FormFillView from "./FormFillView";
 
 export default function LearnerForms() {
   const [activeTab, setActiveTab] = useState("selfService");
@@ -8,6 +9,7 @@ export default function LearnerForms() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+   const [selectedForm, setSelectedForm] = useState(null);
 
   // ✅ Fetch only published forms
   useEffect(() => {
@@ -50,6 +52,10 @@ export default function LearnerForms() {
 
   if (loading) return <p className="loading">Loading forms...</p>;
   if (error) return <p className="error">{error}</p>;
+
+    if (selectedForm) {
+    return <FormFillView form={selectedForm} onBack={() => setSelectedForm(null)} />;
+  }
 
   return (
     <div className="learner-container">
@@ -104,7 +110,13 @@ export default function LearnerForms() {
                       })
                     : "N/A"}
                 </p>
-                <button className="start-button">Start Completion</button>
+                   <button
+                  className="start-button"
+                  onClick={() => { console.log("Selected form:", form);
+                    setSelectedForm(form)}}
+                >
+                  Start Completion
+                </button>
               </div>
             ))
           )}

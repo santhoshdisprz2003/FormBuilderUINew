@@ -1,0 +1,187 @@
+/* ----- Container ----- */
+.formfill-container {
+  background: #f9fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----- Header ----- */
+.formfill-header {
+  background: #f3e8ff;
+  text-align: center;
+  padding: 28px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  position: sticky;
+  top: 0;
+}
+
+.back-button {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #5b21b6;
+  cursor: pointer;
+}
+
+.formfill-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.formfill-desc {
+  color: #6b7280;
+  font-size: 14px;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ----- Body ----- */
+.formfill-body {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px 120px;
+}
+
+.formfill-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 32px;
+  width: 100%;
+  max-width: 680px;
+}
+
+.formfill-section-title {
+  font-size: 15px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.formfill-section-subtext {
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* ----- Field Styles ----- */
+.formfield {
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-label {
+  color: #111827;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 3px;
+}
+
+.question-description {
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.formfield input,
+.formfield textarea,
+.formfield select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  background: #fff;
+}
+
+.formfield textarea {
+  resize: none;
+}
+
+/* ----- File Upload ----- */
+.file-upload-container {
+  border: 2px dashed #d1d5db;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-label {
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.file-label span {
+  color: #5b21b6;
+  font-weight: 500;
+}
+
+.file-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
+/* ----- Footer (Sticky) ----- */
+.formfill-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 14px 24px;
+}
+
+.clear-btn,
+.submit-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear-btn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.submit-btn {
+  background: #5b21b6;
+  color: white;
+}
+
+.info-banner {
+  font-size: 13px;
+  color: #4b5563;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 14px;
+  text-align: center;
+  flex: 1;
+}
