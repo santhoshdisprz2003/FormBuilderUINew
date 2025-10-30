@@ -102,7 +102,6 @@
 .start-button:hover {
   background-color: #462dcf;
 }
-
 /* ====== MY SUBMISSIONS SECTION ====== */
 .submissions-container {
   background: white;
@@ -152,7 +151,7 @@
   width: 220px;
 }
 
-.icon {
+.search-icon {
   width: 16px;
   height: 16px;
   opacity: 0.6;

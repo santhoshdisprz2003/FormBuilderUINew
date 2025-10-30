@@ -7,40 +7,30 @@ export default function LearnerForms() {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // ✅ Fetch only published forms
   useEffect(() => {
     const fetchForms = async () => {
       try {
         setLoading(true);
-
         const response = await getAllForms(0, 50);
-        console.log("Forms API response:", response); // for debug
-
-        // ✅ Your backend wraps data inside "data"
         const formsData = response?.data || [];
-
-        // ✅ Filter published forms (status === 1)
         const publishedForms = formsData.filter(
           (f) => f.status === 1 || f.status === "1"
         );
-
         setForms(publishedForms);
       } catch (err) {
-        console.error(
-          "Error fetching forms:",
-          err.response?.data || err.message || err
-        );
+        console.error("Error fetching forms:", err);
         setError("Failed to load forms");
       } finally {
         setLoading(false);
       }
     };
-
     fetchForms();
   }, []);
 
-  // Dummy submissions for "My Submissions" tab
+  // Dummy submissions for "My Submissions"
   const submissions = [
     {
       id: 1,
@@ -53,6 +43,10 @@ export default function LearnerForms() {
       submittedOn: "Feb 14, 2025 at 8:30 AM",
     },
   ];
+
+  const filteredSubmissions = submissions.filter((item) =>
+    item.formName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) return <p className="loading">Loading forms...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -120,25 +114,67 @@ export default function LearnerForms() {
       {/* MY SUBMISSIONS TAB */}
       {activeTab === "mySubmissions" && (
         <div className="submissions-container">
+          <div className="filter-bar">
+            <div className="left-section">
+              <select className="form-dropdown" disabled>
+                <option>External Training Completion</option>
+              </select>
+            </div>
+
+            <div className="right-section">
+              <div className="search-box">
+                <img
+                  src="/icons/search-icon.png"
+                  alt="search"
+                  className="search-icon"
+                />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <button className="filter-btn">
+                <img
+                  src="/icons/filter-icon.png"
+                  alt="filter"
+                  className="filter-icon"
+                />
+                Filter
+              </button>
+            </div>
+          </div>
+
           <div className="submissions-table">
             <table>
               <thead>
                 <tr>
-                  <th>Form Name</th>
+                  <th>Training Name</th>
                   <th>Submitted On</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {submissions.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.formName}</td>
-                    <td>{item.submittedOn}</td>
-                    <td>
-                      <button className="view-btn">View</button>
+                {filteredSubmissions.length > 0 ? (
+                  filteredSubmissions.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.formName}</td>
+                      <td>{item.submittedOn}</td>
+                      <td>
+                        <button className="view-btn">View</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      No matching submissions found.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
