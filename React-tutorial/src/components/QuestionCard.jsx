@@ -17,18 +17,59 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
 
   // 🔄 Keep parent in sync
   useEffect(() => {
-    onUpdate(index, {
-      ...field,
-      label: question,
-      description,
-     descriptionEnabled: showDescription,
-      required,
-      dateFormat,
-      selectedDate,
-      selectionType,
-      options,
-    });
-  }, [question, description, showDescription, required, dateFormat, selectedDate, selectionType, options]);
+  const single_choice = selectionType === "single";
+  const multiple_choice = selectionType === "multi";
+
+  const updatedField = {
+    ...field,
+    label: question,
+    description,
+    description_enabled: showDescription,
+    required,
+    dateFormat,
+    selectedDate,
+    selectionType,
+    options,
+    single_choice,
+    multiple_choice,
+  };
+
+  // Ensure both single_choice and multiple_choice are set properly
+  if (field.type === "drop-down") {
+    updatedField.single_choice = single_choice;
+    updatedField.multiple_choice = multiple_choice;
+  } else {
+    updatedField.single_choice = false;
+    updatedField.multiple_choice = false;
+  }
+
+  console.log("Updating field:", updatedField);
+
+
+  onUpdate(index, {
+    ...field,
+    label: question,
+    description,
+    description_enabled: showDescription,
+    required,
+    dateFormat,
+    selectedDate,
+    selectionType,
+    single_choice,
+    multiple_choice,
+    options,
+  });
+}, [
+  question,
+  description,
+  showDescription,
+  required,
+  dateFormat,
+  selectedDate,
+  selectionType,
+  options,
+]);
+
 
   const handleAddOption = () => {
     const newId = options.length + 1;

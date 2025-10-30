@@ -12,6 +12,13 @@ export const getResponsesForForm = async (formId) => {
   return response.data;
 };
 
+// Get all responses submitted by the logged-in learner (across all forms)
+export const getAllResponsesByLearner = async () => {
+  const response = await axiosInstance.get("/responses/my-responses");
+  return response.data;
+};
+
+
 // Download a file attached to a response (Admin only)
 export const downloadFile = async (responseId, fileId) => {
   const response = await axiosInstance.get(`/responses/download-file/${responseId}/${fileId}`, {

@@ -1,6 +1,8 @@
+// src/components/LearnerForms.jsx
 import React, { useState, useEffect } from "react";
 import "../styles/LearnerForms.css";
-import { getAllForms } from "../api/formService";
+import { getAllForms, getFormById } from "../api/formService";
+import { getAllResponsesByLearner } from "../api/responses";
 import FormFillView from "./FormFillView";
 
 export default function LearnerForms() {
@@ -9,19 +11,22 @@ export default function LearnerForms() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-   const [selectedForm, setSelectedForm] = useState(null);
+  const [selectedForm, setSelectedForm] = useState(null);
+  const [responses, setResponses] = useState([]);
+  const [selectedResponse, setSelectedResponse] = useState(null);
+  const [selectedFormDetails, setSelectedFormDetails] = useState(null);
 
-  // ✅ Fetch only published forms
+  // ✅ Fetch published forms
   useEffect(() => {
     const fetchForms = async () => {
       try {
         setLoading(true);
         const response = await getAllForms(0, 50);
         const formsData = response?.data || [];
-        const publishedForms = formsData.filter(
+        const published = formsData.filter(
           (f) => f.status === 1 || f.status === "1"
         );
-        setForms(publishedForms);
+        setForms(published);
       } catch (err) {
         console.error("Error fetching forms:", err);
         setError("Failed to load forms");
@@ -32,28 +37,65 @@ export default function LearnerForms() {
     fetchForms();
   }, []);
 
-  // Dummy submissions for "My Submissions"
-  const submissions = [
-    {
-      id: 1,
-      formName: "External Trainings - Skills Development",
-      submittedOn: "May 20, 2025 at 4:00 PM",
-    },
-    {
-      id: 2,
-      formName: "Advanced Certification Workshop",
-      submittedOn: "Feb 14, 2025 at 8:30 AM",
-    },
-  ];
+  // ✅ Fetch learner responses
+  useEffect(() => {
+    const fetchResponses = async () => {
+      try {
+        const data = await getAllResponsesByLearner();
+        const formatted = data.map((r) => ({
+          responseId: r.responseId,
+          formId: r.formId,
+          formTitle: r.formTitle,
+          submittedOn: new Date(r.submittedAt).toLocaleString(),
+          answers: r.answers || [],
+          files: r.files || [],
+        }));
+        setResponses(formatted);
+      } catch (err) {
+        console.error("Error fetching learner responses:", err);
+      }
+    };
 
-  const filteredSubmissions = submissions.filter((item) =>
-    item.formName.toLowerCase().includes(searchQuery.toLowerCase())
+    if (activeTab === "mySubmissions") fetchResponses();
+  }, [activeTab]);
+
+  const filteredSubmissions = responses.filter((item) =>
+    item.formTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // ✅ Convert base64 → blob for downloads
+  const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
+    if (!b64Data) return null;
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: contentType });
+  };
+
+  // ✅ Load form details when viewing response
+  const handleViewResponse = async (response) => {
+    try {
+      const formData = await getFormById(response.formId);
+      setSelectedFormDetails(formData);
+      setSelectedResponse(response);
+    } catch (err) {
+      console.error("Error loading form details:", err);
+    }
+  };
 
   if (loading) return <p className="loading">Loading forms...</p>;
   if (error) return <p className="error">{error}</p>;
 
-    if (selectedForm) {
+  // ✅ Show fill view
+  if (selectedForm) {
     return <FormFillView form={selectedForm} onBack={() => setSelectedForm(null)} />;
   }
 
@@ -75,17 +117,6 @@ export default function LearnerForms() {
         </button>
       </div>
 
-      {/* Info Box */}
-      {activeTab === "selfService" && (
-        <div className="learner-info-box">
-          <span className="info-icon">ℹ️</span>
-          <span>
-            These forms are optional and can be submitted multiple times if
-            needed.
-          </span>
-        </div>
-      )}
-
       {/* SELF-SERVICE TAB */}
       {activeTab === "selfService" && (
         <div className="learner-forms-grid">
@@ -101,7 +132,7 @@ export default function LearnerForms() {
                   {form.config?.description || "No description available"}
                 </p>
                 <p className="form-date">
-                  Published Date:{" "}
+                  Created Date:{" "}
                   {form.publishedAt
                     ? new Date(form.publishedAt).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -123,72 +154,157 @@ export default function LearnerForms() {
         </div>
       )}
 
-      {/* MY SUBMISSIONS TAB */}
+      {/* MY SUBMISSIONS */}
       {activeTab === "mySubmissions" && (
         <div className="submissions-container">
           <div className="filter-bar">
-            <div className="left-section">
-              <select className="form-dropdown" disabled>
-                <option>External Training Completion</option>
-              </select>
-            </div>
-
-            <div className="right-section">
-              <div className="search-box">
-                <img
-                  src="/icons/search-icon.png"
-                  alt="search"
-                  className="search-icon"
-                />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="search-input"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-
-              <button className="filter-btn">
-                <img
-                  src="/icons/filter-icon.png"
-                  alt="filter"
-                  className="filter-icon"
-                />
-                Filter
-              </button>
-            </div>
+            <input
+              type="text"
+              placeholder="Search forms..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
-          <div className="submissions-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Training Name</th>
-                  <th>Submitted On</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSubmissions.length > 0 ? (
-                  filteredSubmissions.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.formName}</td>
-                      <td>{item.submittedOn}</td>
-                      <td>
-                        <button className="view-btn">View</button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" style={{ textAlign: "center" }}>
-                      No matching submissions found.
+          <table className="submissions-table">
+            <thead>
+              <tr>
+                <th>Training Name</th>
+                <th>Submitted On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSubmissions.length > 0 ? (
+                filteredSubmissions.map((item) => (
+                  <tr key={item.responseId}>
+                    <td>{item.formTitle}</td>
+                    <td>{item.submittedOn}</td>
+                    <td>
+                      <button onClick={() => handleViewResponse(item)}>View</button>
                     </td>
                   </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">No submissions found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* 🔹 Response Modal */}
+      {selectedResponse && selectedFormDetails && (
+        <div
+          className="response-modal-overlay"
+          onClick={() => {
+            setSelectedResponse(null);
+            setSelectedFormDetails(null);
+          }}
+        >
+          <div
+            className="response-modal form-view-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <div>
+                <h2>{selectedFormDetails?.config?.title || "Form Response"}</h2>
+                {selectedFormDetails?.config?.description && (
+                  <p>{selectedFormDetails.config.description}</p>
                 )}
-              </tbody>
-            </table>
+              </div>
+              <button
+                className="close-modal-btn"
+                onClick={() => {
+                  setSelectedResponse(null);
+                  setSelectedFormDetails(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="form-questions">
+              {selectedFormDetails?.layout?.fields?.map((q, index) => {
+                const ans = selectedResponse.answers.find(
+                  (a) => a.questionId === q.questionId
+                );
+                const file = selectedResponse.files.find(
+                  (f) => f.questionId === q.questionId
+                );
+                let answerDisplay = ans?.answerText || "";
+
+                // 🟣 Handle dropdown / checkbox / radio mapping
+                if (
+                  ["drop-down", "checkbox", "radio"].includes(q.type) &&
+                  answerDisplay
+                ) {
+                  try {
+                    const parsed = JSON.parse(answerDisplay);
+                    const ids = Array.isArray(parsed)
+                      ? parsed
+                      : [parsed.toString()];
+                    const values = ids
+                      .map((id) => {
+                        const cleanId = id.replace(/[\[\]"]/g, "");
+                        const opt = q.options?.find(
+                          (o) =>
+                            o.optionId === cleanId ||
+                            o.id === cleanId
+                        );
+                        return opt?.value || opt?.label;
+                      })
+                      .filter(Boolean);
+                    answerDisplay = values.join(", ");
+                  } catch {
+                    // leave raw text
+                  }
+                }
+
+                // 🟣 Handle file-upload type
+                if (q.type === "file-upload") {
+                  if (file?.base64Content) {
+                    const blob = b64toBlob(file.base64Content, file.fileType);
+                    const url = URL.createObjectURL(blob);
+                    answerDisplay = (
+                      <a
+                        href={url}
+                        download={file.fileName}
+                        className="file-answer-link"
+                      >
+                        {file.fileName}
+                      </a>
+                    );
+                  } else {
+                    answerDisplay = (
+                      <span className="no-answer">No file uploaded</span>
+                    );
+                  }
+                }
+
+                return (
+                  <div key={q.questionId} className="response-question-card">
+                    <h4 className="question-label">
+                      {index + 1}. {q.label}
+                    </h4>
+                    {q.descriptionEnabled && q.description && (
+                      <p className="question-description">{q.description}</p>
+                    )}
+                    <div className="answer-section">
+                      {typeof answerDisplay === "string" ? (
+                        <p className="text-answer">
+                          {answerDisplay || "No response"}
+                        </p>
+                      ) : (
+                        answerDisplay
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
