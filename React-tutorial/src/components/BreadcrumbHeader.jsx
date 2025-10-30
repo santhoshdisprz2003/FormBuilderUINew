@@ -1,11 +1,12 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/BreadcrumbHeader.css";
 import homeIcon from "../assets/home.png";
 import arrowIcon from "../assets/AltArrowRight.png";
 
-const BreadcrumbHeader = () => {
+const BreadcrumbHeader = ({ onLogout }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname || "/";
 
   // Role stored in localStorage: "admin" or "learner" (or null)
@@ -69,8 +70,16 @@ const BreadcrumbHeader = () => {
     crumbs = [{ label: role === "learner" ? "Action Center" : "Form Builder", path: "/" }];
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    if (onLogout) onLogout();
+    navigate("/login"); // redirect to login page
+  };
+
   return (
     <div className="breadcrumb-header">
+      {/* 👇 Left side: breadcrumbs */}
       <div className="breadcrumb-container">
         {/* Home Icon */}
         <Link to="/" className="breadcrumb-home-icon" aria-label="Home">
@@ -91,8 +100,14 @@ const BreadcrumbHeader = () => {
           </span>
         ))}
       </div>
+
+      {/* 👇 Right side: logout button */}
+      <button className="logout-button" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
+
 };
 
 export default BreadcrumbHeader;

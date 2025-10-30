@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./components/Login";
 import FormBuilderHome from "./components/FormBuilderHome";
 import CreateForm from "./components/CreateForm";
 import BreadcrumbHeader from "./components/BreadcrumbHeader";
 import ViewForm from "./components/ViewForm";
-import LearnerForms from "./components/LearnerForms"; // ✅ new import
+import LearnerForms from "./components/LearnerForms";
 
-export default function App() {
+function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
+  const location = useLocation(); // 👈 access current route
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role")?.toLowerCase(); // "admin" or "learner"
+    const storedRole = localStorage.getItem("role")?.toLowerCase();
     if (token) {
       setIsLoggedIn(true);
       setRole(storedRole);
+    } else {
+      setIsLoggedIn(false);
+      setRole(null);
     }
   }, []);
 
@@ -28,15 +32,15 @@ export default function App() {
   };
 
   return (
-    <Router>
-      {/* ✅ Show breadcrumb when logged in */}
-      {isLoggedIn && <BreadcrumbHeader />}
+    <>
+      {/* ✅ Show breadcrumb only when logged in and not on login page */}
+      {isLoggedIn && location.pathname !== "/login" && (
+        <BreadcrumbHeader onLogout={handleLogout} />
+      )}
 
       <Routes>
-        {/* ✅ Public login route */}
         <Route path="/login" element={<Login />} />
 
-        {/* ✅ Root route — redirect based on role */}
         <Route
           path="/"
           element={
@@ -52,7 +56,6 @@ export default function App() {
           }
         />
 
-        {/* ✅ Learner route */}
         <Route
           path="/learner-forms"
           element={
@@ -64,7 +67,6 @@ export default function App() {
           }
         />
 
-        {/* ✅ Admin route */}
         <Route
           path="/admin-forms"
           element={
@@ -76,7 +78,6 @@ export default function App() {
           }
         />
 
-        {/* ✅ Shared routes (available for logged-in users) */}
         <Route
           path="/form-builder/view/:id"
           element={isLoggedIn ? <ViewForm /> : <Navigate to="/login" replace />}
@@ -92,6 +93,14 @@ export default function App() {
           element={isLoggedIn ? <CreateForm /> : <Navigate to="/login" replace />}
         />
       </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
