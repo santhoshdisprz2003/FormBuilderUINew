@@ -12,63 +12,63 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
   const [required, setRequired] = useState(field.required || false);
   const [dateFormat, setDateFormat] = useState(field.dateFormat || "DD/MM/YYYY");
   const [selectedDate, setSelectedDate] = useState(field.selectedDate || "");
-  const [selectionType, setSelectionType] = useState(field.selectionType || "single");
+
   const [options, setOptions] = useState(field.options || [{ id: 1, value: "Option 1" }]);
 
-  // 🔄 Keep parent in sync
+  const [selectionType, setSelectionType] = useState(field.selectionType || "single");
   useEffect(() => {
-  const single_choice = selectionType === "single";
-  const multiple_choice = selectionType === "multi";
+    const single_choice = selectionType === "single";
+    const multiple_choice = selectionType === "multi";
 
-  const updatedField = {
-    ...field,
-    label: question,
+    const updatedField = {
+      ...field,
+      label: question,
+      description,
+      description_enabled: showDescription,
+      required,
+      dateFormat,
+      selectedDate,
+      selectionType,
+      options,
+      single_choice,
+      multiple_choice,
+    };
+
+    // Ensure both single_choice and multiple_choice are set properly
+    if (field.type === "drop-down") {
+      updatedField.single_choice = single_choice;
+      updatedField.multiple_choice = multiple_choice;
+    } else {
+      updatedField.single_choice = false;
+      updatedField.multiple_choice = false;
+    }
+
+    console.log("Updating field:", updatedField);
+
+
+    onUpdate(index, {
+      ...field,
+      label: question,
+      description,
+      description_enabled: showDescription,
+      required,
+      dateFormat,
+      selectedDate,
+      selectionType,
+      single_choice,
+      multiple_choice,
+      options,
+    });
+  }, [
+    question,
     description,
-    description_enabled: showDescription,
+    showDescription,
     required,
     dateFormat,
     selectedDate,
     selectionType,
     options,
-    single_choice,
-    multiple_choice,
-  };
-
-  // Ensure both single_choice and multiple_choice are set properly
-  if (field.type === "drop-down") {
-    updatedField.single_choice = single_choice;
-    updatedField.multiple_choice = multiple_choice;
-  } else {
-    updatedField.single_choice = false;
-    updatedField.multiple_choice = false;
-  }
-
-  console.log("Updating field:", updatedField);
-
-
-  onUpdate(index, {
-    ...field,
-    label: question,
-    description,
-    description_enabled: showDescription,
-    required,
-    dateFormat,
-    selectedDate,
-    selectionType,
-    single_choice,
-    multiple_choice,
-    options,
-  });
-}, [
-  question,
-  description,
-  showDescription,
-  required,
-  dateFormat,
-  selectedDate,
-  selectionType,
-  options,
-]);
+  ]);
 
 
   const handleAddOption = () => {
@@ -229,15 +229,15 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
         </div>
       )}
 
-       {/* File Upload Field */}
+      {/* File Upload Field */}
       {field.type === "file-upload" && (
         <div className="file-upload-container">
           <div className="file-upload-display">
             <img
-        src={FileSizeIcon}
-        alt="file upload"
-        className="file-upload-icon"
-      />
+              src={FileSizeIcon}
+              alt="file upload"
+              className="file-upload-icon"
+            />
             <div className="file-upload-text">
               <div className="file-upload-title">File upload (only one file allowed)</div>
               <div className="file-upload-info">Supported files: PDF, JPG, PNG | Max file size 2 MB</div>

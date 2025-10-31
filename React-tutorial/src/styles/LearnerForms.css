@@ -176,6 +176,7 @@
 
 .response-modal {
   background: #fff;
+  border-top: solid 6px #5D38DF ;
   border-radius: 10px;
   padding: 24px 28px;
   max-width: 900px;
