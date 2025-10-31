@@ -15,7 +15,12 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
 
   const [options, setOptions] = useState(field.options || [{ id: 1, value: "Option 1" }]);
 
-  const [selectionType, setSelectionType] = useState(field.selectionType || "single");
+  const [selectionType, setSelectionType] = useState(() => {
+    if (field.multiple_choice) return "multi";
+    if (field.single_choice) return "single";
+    return field.selectionType || "single";
+  });
+
   useEffect(() => {
     const single_choice = selectionType === "single";
     const multiple_choice = selectionType === "multi";
@@ -38,9 +43,6 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
     if (field.type === "drop-down") {
       updatedField.single_choice = single_choice;
       updatedField.multiple_choice = multiple_choice;
-    } else {
-      updatedField.single_choice = false;
-      updatedField.multiple_choice = false;
     }
 
     console.log("Updating field:", updatedField);

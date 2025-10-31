@@ -167,23 +167,40 @@ export default function FormFillView({ form, onBack }) {
                 )}
 
                 {q.type === "file-upload" && (
-                  <div className="file-upload-container">
-                    <input
-                      type="file"
-                      id={`file-${index}`}
-                      className="file-input"
-                      onChange={(e) =>
-                        handleChange(q.questionId, e.target.files[0])
-                      }
-                    />
-                    <label htmlFor={`file-${index}`} className="file-label">
-                      Drop files here or <span>Browse</span>
-                    </label>
-                    <p className="file-hint">
-                      Supported files: PDF, PNG, JPG, JPEG | Max file size: 2 MB | Only one file allowed
-                    </p>
-                  </div>
-                )}
+  <div className="file-upload-container">
+    {!responses[q.questionId] ? (
+      <>
+        <input
+          type="file"
+          id={`file-${index}`}
+          className="file-input"
+          onChange={(e) => handleChange(q.questionId, e.target.files[0])}
+        />
+        <label htmlFor={`file-${index}`} className="file-label">
+          Drop files here or <span>Browse</span>
+        </label>
+        <p className="file-hint">
+          Supported files: PDF, PNG, JPG, JPEG | Max file size: 2 MB | Only one file allowed
+        </p>
+      </>
+    ) : (
+      <div className="uploaded-file-display">
+        <div className="file-info">
+          <span className="file-name">{responses[q.questionId].name}</span>
+          
+        </div>
+        <button
+          type="button"
+          className="remove-file-btn"
+          onClick={() => handleChange(q.questionId, null)}
+        >
+          Remove
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
               </div>
             ))
           )}
