@@ -36,7 +36,7 @@ const Login = () => {
         );
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("role", response.data.role);
-        window.location.href = '/'
+        window.location.href = '/';
       }
     } catch (error) {
       console.log(error)

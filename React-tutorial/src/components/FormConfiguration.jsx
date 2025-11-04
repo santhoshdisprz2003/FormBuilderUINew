@@ -21,6 +21,7 @@ export default function FormConfiguration({
         <input
           id="formName"
           type="text"
+          className="input-config"
           placeholder="Enter Form Name"
           value={formName}
           onChange={(e) => setFormName(e.target.value)}
@@ -33,6 +34,7 @@ export default function FormConfiguration({
         <label htmlFor="formDesc">Form Description</label>
         <textarea
           id="formDesc"
+          className="input-config"
           placeholder="Summarize the form's purpose for internal reference."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -45,6 +47,7 @@ export default function FormConfiguration({
         <label>Form Visibility</label>
         <label className="switch">
           <input
+          className="input-config"
             type="checkbox"
             checked={visibility}
             onChange={() => setVisibility((v) => !v)}

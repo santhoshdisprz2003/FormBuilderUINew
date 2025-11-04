@@ -9,24 +9,30 @@ export default function FormBuilderHome() {
   const navigate = useNavigate();
 
   const [forms, setForms] = useState([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  
+
+  // ✅ Debounce timer for search
   useEffect(() => {
-    getForms();
-  }, []);
+    const delayDebounce = setTimeout(() => {
+      getForms(search);
+    }, 0); // adjust delay for smoothness
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   const handleCreateForm = () => {
     navigate("/create-form");
   };
 
-  const getForms = async () => {
+  const getForms = async (searchTerm = "") => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getAllForms();
+      const response = await getAllForms(0, 10, searchTerm);
       console.log('Forms data:', response.data);
       console.log('First form:', response.data[0]);
       setForms(response.data);

@@ -37,10 +37,13 @@ export const updateFormLayout = async (formId, layoutDto) => {
 // =========================
 
 // 🔹 Get all forms (with pagination)
-export const getAllForms = async (offset = 0, limit = 10) => {
-  const res = await axiosInstance.get("/forms", { params: { offset, limit } });
+export const getAllForms = async (offset = 0, limit = 10, search = "") => {
+  const res = await axiosInstance.get("/forms", {
+    params: { offset, limit, search },
+  });
   return res.data;
 };
+
 
 // 🔹 Get form by ID (used in ViewForm)
 export const getFormById = async (id) => {

@@ -3,26 +3,33 @@ import React, { useEffect, useState } from "react";
 import "../styles/FormResponses.css";
 import SearchIcon from "../assets/SearchIcon.png";
 import FilterIcon from "../assets/FilterIcon.png";
+import NoResponseIcon from "../assets/NoResponseIcon.png";
+import "../styles/ResponseModal.css";
 import { useParams } from "react-router-dom";
 import { getAllResponsesForForm } from "../api/admin.js";
 import { getFormById } from "../api/formService.js";
-import "../styles/ResponseModal.css";
-import NoResponseIcon from "../assets/NoResponseIcon.png"
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 export default function FormResponses() {
   const { id: formId } = useParams();
+
   const [activeTab, setActiveTab] = useState("summary");
   const [responses, setResponses] = useState([]);
-  const [filteredResponses, setFilteredResponses] = useState([]);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const [formDetails, setFormDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ Fetch form details (title, description, questions)
+  // ✅ Fetch form details (title, questions)
   useEffect(() => {
     const fetchFormDetails = async () => {
       try {
@@ -35,15 +42,24 @@ export default function FormResponses() {
     if (formId) fetchFormDetails();
   }, [formId]);
 
-  // ✅ Fetch all responses for the form
+  // ✅ Debounced search
+  useEffect(() => {
+    const delay = setTimeout(() => setPageNumber(1), 500);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
+
+  // ✅ Fetch paginated + filtered responses
   useEffect(() => {
     const fetchResponses = async () => {
       try {
-        setLoading(true);
-        const data = await getAllResponsesForForm(formId);
-        console.log("Fetched responses:", data);
+        // setLoading(true);
+        setError(null);
+        const data = await getAllResponsesForForm(formId, pageNumber, pageSize, searchTerm);
 
-        const formatted = data.map((res, index) => ({
+        setTotalPages(data.totalPages);
+        setTotalCount(data.totalCount);
+
+        const formatted = data.items.map((res, index) => ({
           id: res.responseId || index,
           submittedBy: res.submittedUserName || "Unknown",
           userId: res.submittedBy || "-",
@@ -54,60 +70,45 @@ export default function FormResponses() {
         }));
 
         setResponses(formatted);
-        setFilteredResponses(formatted);
       } catch (err) {
         console.error("Error fetching responses:", err);
         setError("Failed to load responses. Please try again later.");
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
     if (formId) fetchResponses();
-  }, [formId]);
+  }, [formId, pageNumber, pageSize, searchTerm]);
 
-  // ✅ Search filter
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredResponses(responses);
-    } else {
-      const lower = searchTerm.toLowerCase();
-      setFilteredResponses(
-        responses.filter(
-          (r) =>
-            r.submittedBy.toLowerCase().includes(lower) ||
-            r.userId.toLowerCase().includes(lower)
-        )
-      );
-    }
-  }, [searchTerm, responses]);
-
-  // ✅ Match question details
-  const getQuestionDetails = (questionId) => {
-    if (!formDetails?.layout?.fields) return null;
-    return formDetails.layout.fields.find((f) => f.questionId === questionId);
+  // 🔹 Pagination Handlers
+  const handleNext = () => {
+    if (pageNumber < totalPages) setPageNumber(pageNumber + 1);
+  };
+  const handlePrev = () => {
+    if (pageNumber > 1) setPageNumber(pageNumber - 1);
+  };
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value));
+    setPageNumber(1);
   };
 
-  // 🔹 Convert Base64 to Blob (for downloadable links)
+  // 🔹 Base64 → Blob for file download
   function b64toBlob(b64Data, contentType = "", sliceSize = 512) {
     if (!b64Data) return null;
     const byteCharacters = atob(b64Data);
     const byteArrays = [];
-
     for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
       const slice = byteCharacters.slice(offset, offset + sliceSize);
       const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
+      for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-
     return new Blob(byteArrays, { type: contentType });
   }
 
-  // ✅ Export to Excel function
+  // 🔹 Export to Excel
   const exportToExcel = () => {
     if (!responses || responses.length === 0) {
       alert("No responses available to export.");
@@ -119,34 +120,30 @@ export default function FormResponses() {
 
       if (res.answers && Array.isArray(res.answers)) {
         res.answers.forEach((a) => {
-          const question = getQuestionDetails(a.questionId);
-          const questionLabel = question?.label || a.questionId;
-          let answerText = a.answerText || "-";
+          const q = formDetails?.layout?.fields?.find(
+            (f) => f.questionId === a.questionId
+          );
+          const label = q?.label || a.questionId;
+          let ansText = a.answerText || "-";
 
-          // Handle dropdown / multi-select
           if (
-            (question?.type === "drop-down" ||
-              question?.type === "radio" ||
-              question?.type === "checkbox") &&
-            answerText
+            (q?.type === "drop-down" ||
+              q?.type === "radio" ||
+              q?.type === "checkbox") &&
+            ansText
           ) {
             try {
-              const parsed = JSON.parse(answerText);
+              const parsed = JSON.parse(ansText);
               if (Array.isArray(parsed)) {
-                const matchedOptions = parsed
-                  .map((id) => {
-                    const opt = question.options?.find((o) => o.optionId === id);
-                    return opt?.value;
-                  })
+                const matched = parsed
+                  .map((id) => q.options?.find((o) => o.optionId === id)?.value)
                   .filter(Boolean);
-                answerText = matchedOptions.join(", ");
+                ansText = matched.join(", ");
               }
-            } catch {
-              // leave as is
-            }
+            } catch {}
           }
 
-          answersObj[questionLabel] = answerText;
+          answersObj[label] = ansText;
         });
       }
 
@@ -163,30 +160,24 @@ export default function FormResponses() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, `${formDetails?.config?.title || "Form"}_Responses.xlsx`);
+    const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([buffer], { type: "application/octet-stream" });
+    saveAs(blob, `${formDetails?.config?.title || "Form"}_Responses.xlsx`);
   };
 
   if (loading) return <div className="loading">Loading responses...</div>;
   if (error) return <div className="error">{error}</div>;
- if (filteredResponses.length === 0)
-  return (
-    <div className="no-responses-container">
-      <img
-        src={NoResponseIcon}
-        alt="No Responses"
-        className="no-responses-image"
-      />
-      <h2 className="no-responses-title">No Responses Yet</h2>
-      <p className="no-responses-subtitle">
-        Once learners start submitting the form, their individual responses will
-        appear here. <br />
-        You can view, filter, and analyze each submission in detail.
-      </p>
-    </div>
-  );
 
+  if (responses.length === 0)
+    return (
+      <div className="no-responses-container">
+        <img src={NoResponseIcon} alt="No Responses" className="no-responses-image" />
+        <h2 className="no-responses-title">No Responses Yet</h2>
+        <p className="no-responses-subtitle">
+          Once learners start submitting the form, their individual responses will appear here.
+        </p>
+      </div>
+    );
 
   return (
     <div className="responses-container">
@@ -235,24 +226,21 @@ export default function FormResponses() {
         <thead>
           <tr>
             <th>Submitted By</th>
-            <th>User ID</th>
+            <th>User Id</th>
             <th>Submitted On</th>
             <th>Email</th>
             <th>Response</th>
           </tr>
         </thead>
-        <tbody>
-          {filteredResponses.map((res) => (
+        <tbody> 
+          {responses.map((res) => (
             <tr key={res.id}>
               <td>{res.submittedBy}</td>
               <td>{res.userId}</td>
               <td>{res.submittedOn}</td>
               <td>{res.email}</td>
               <td>
-                <button
-                  className="view-butn"
-                  onClick={() => setSelectedResponse(res)}
-                >
+                <button className="view-butn" onClick={() => setSelectedResponse(res)}>
                   View
                 </button>
               </td>
@@ -261,72 +249,75 @@ export default function FormResponses() {
         </tbody>
       </table>
 
+      {/* 🔹 Pagination */}
+      <div className="pagination-container">
+        <div className="items-info">
+          <label className="page">Items per page</label>
+          <select className="items-dropdown" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={1}>1</option>
+            <option value={10}>10</option>
+            <option value={15}>15</option>
+          </select>
+          <span className="items-range">
+            {(pageNumber - 1) * pageSize + 1}–
+            {Math.min(pageNumber * pageSize, totalCount)} of {totalCount} items
+          </span>
+        </div>
+
+        <div className="pagination-controls">
+          <span className="page-info">
+            {pageNumber} of {totalPages} pages
+          </span>
+          <button className="page-btn prev" disabled={pageNumber === 1} onClick={handlePrev}>
+            ‹
+          </button>
+          <button className="page-btn next" disabled={pageNumber === totalPages} onClick={handleNext}>
+            ›
+          </button>
+        </div>
+      </div>
+
       {/* 🔹 Response Modal */}
       {selectedResponse && (
-        <div
-          className="response-modal-overlay"
-          onClick={() => setSelectedResponse(null)}
-        >
-          <div
-            className="response-modal form-view-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="response-modal-overlay" onClick={() => setSelectedResponse(null)}>
+          <div className="response-modal form-view-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h2 className="form-title">
-                  {formDetails?.config?.title || "Response Details"}
-                </h2>
+                <h2 className="form-title">{formDetails?.config?.title || "Response Details"}</h2>
                 {formDetails?.config?.description && (
-                  <p className="form-description">
-                    {formDetails.config.description}
-                  </p>
+                  <p className="form-description">{formDetails.config.description}</p>
                 )}
               </div>
-              <button
-                className="close-modal-btn"
-                onClick={() => setSelectedResponse(null)}
-              >
+              <button className="close-modal-btn" onClick={() => setSelectedResponse(null)}>
                 ✕
               </button>
             </div>
 
             <div className="form-questions">
               {formDetails?.layout?.fields?.map((q, index) => {
-                const questionNumber = index + 1;
-
-                const ans = selectedResponse.answers.find(
-                  (a) => a.questionId === q.questionId
-                );
-                const file = selectedResponse.files?.find(
-                  (f) => f.questionId === q.questionId
-                );
-
+                const ans = selectedResponse.answers.find((a) => a.questionId === q.questionId);
+                const file = selectedResponse.files?.find((f) => f.questionId === q.questionId);
                 let answerDisplay = ans?.answerText || "";
 
                 if (
-                  (q.type === "drop-down" ||
-                    q.type === "radio" ||
-                    q.type === "checkbox") &&
+                  (q.type === "drop-down" || q.type === "radio" || q.type === "checkbox") &&
                   answerDisplay
                 ) {
                   try {
                     const parsed = JSON.parse(answerDisplay);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                      const matchedOptions = parsed
-                        .map((id) => {
-                          const opt = q.options?.find(
+                      const matched = parsed
+                        .map((id) =>
+                          q.options?.find(
                             (o) =>
                               o.optionId === id ||
                               o.optionId === id.replace(/[\[\]"]/g, "")
-                          );
-                          return opt?.value;
-                        })
+                          )?.value
+                        )
                         .filter(Boolean);
-                      answerDisplay = matchedOptions.join(", ");
+                      answerDisplay = matched.join(", ");
                     }
-                  } catch {
-                    // leave as text
-                  }
+                  } catch {}
                 }
 
                 if (q.type === "file-upload") {
@@ -334,41 +325,30 @@ export default function FormResponses() {
                     const blob = b64toBlob(file.base64Content, file.fileType);
                     const url = URL.createObjectURL(blob);
                     answerDisplay = (
-                      <a
-                        href={url}
-                        download={file.fileName}
-                        className="file-answer-link"
-                      >
+                      <a href={url} download={file.fileName} className="file-answer-link">
                         {file.fileName}
                       </a>
                     );
                   } else {
-                    answerDisplay = (
-                      <span className="no-answer">No file uploaded</span>
-                    );
+                    answerDisplay = <span className="no-answer">No file uploaded</span>;
                   }
                 }
 
                 return (
                   <div key={q.questionId} className="response-question-card">
                     <div className="question-header">
-                      <span className="question-number">{questionNumber}</span>
+                      <span className="question-number">{index + 1}</span>
                       <div className="question-content">
                         <h4 className="question-label">{q.label}</h4>
                         {q.descriptionEnabled && q.description && (
-                          <p className="question-description">
-                            {q.description}
-                          </p>
+                          <p className="question-description">{q.description}</p>
                         )}
                       </div>
                     </div>
-
                     <div className="answer-section">
                       {typeof answerDisplay === "string" ? (
                         <p className="text-answer">
-                          {answerDisplay || (
-                            <span className="no-answer">No response</span>
-                          )}
+                          {answerDisplay || <span className="no-answer">No response</span>}
                         </p>
                       ) : (
                         answerDisplay
@@ -381,6 +361,14 @@ export default function FormResponses() {
           </div>
         </div>
       )}
+
+      {/* 🔹 Footer */}
+      <div className="form-footer">
+        <button className="preview-form-btn">Preview Form</button>
+        <button className="save-form-btn" disabled>
+          Save Form
+        </button>
+      </div>
     </div>
   );
 }

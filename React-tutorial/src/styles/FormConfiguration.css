@@ -39,10 +39,9 @@
   margin-left: 2px;
 }
 
-input[type="text"],
-textarea {
+.input-config {
   width: 100%;
-  padding: 10px 28px;
+  padding: 10px 15px;
   border: 1px solid #CFCFCF;
   border-radius: 6px;
   font-size: 14px;
@@ -52,8 +51,7 @@ textarea {
   transition: border-color 0.2s;
 }
 
-input[type="text"]:focus,
-textarea:focus {
+.input-config:focus {
   border-color: #5D38DF;
 }
 

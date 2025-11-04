@@ -16,7 +16,6 @@ import NumberIcon from "../assets/NumberIcon.png";
 import {
   createFormConfig,
   updateFormConfig,
-  createFormLayout,
   updateFormLayout,
   publishForm,
   getFormById
@@ -38,7 +37,7 @@ export default function CreateForm({ mode = "create" }) {
 
   // Available input field types
   const inputFields = [
-    { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#4F46E5" },
+    { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#CBE3FE" },
     { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: LongTextIcon, borderColor: "#7B61FF40" },
     { id: 3, label: "Date Picker", type: "date-picker", icon: DatePickerIcon, borderColor: "#BBE9E4" },
     { id: 4, label: "Dropdown", type: "drop-down", icon: DropDownIcon, borderColor: "#DBF3CC" },

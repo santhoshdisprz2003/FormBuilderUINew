@@ -33,7 +33,6 @@
 .tab.active {
   color: #3b3ff8;
   font-weight: 500;
-  border-bottom: 2px solid #3b3ff8;
 }
 
 /* ====== SELF-SERVICE GRID ====== */
@@ -143,8 +142,13 @@
   color: #4b5563;
 }
 
+.view-response-icon{
+  width: 24px;
+  height: 24px;
+}
+
 .submissions-table button {
-  background-color: #5b21b6;
+  background-color: white;
   color: white;
   border: none;
   border-radius: 6px;
@@ -154,9 +158,7 @@
   transition: 0.2s;
 }
 
-.submissions-table button:hover {
-  background-color: #4c1d95;
-}
+
 
 /* ====== RESPONSE MODAL ====== */
 .response-modal-overlay {
@@ -278,4 +280,83 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+
+
+/* ===== PAGINATION SECTION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.pagination button:hover {
+  background-color: #e0e0e0;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  background-color: #f9f9f9;
+  color: #aaa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.page-btn.disabled,
+.page-btn:disabled {
+  background-color: #fafafa;
+  color: #aaa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
 }

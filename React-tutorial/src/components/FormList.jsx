@@ -17,9 +17,8 @@ export default function FormList({
   const navigate = useNavigate();
 
   // ✅ Filter forms by title
-  const filteredForms = forms.filter((form) =>
-    (form?.config?.title || "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredForms = forms; // API already returns filtered data
+
 
   // ✅ Confirm deletion
   const confirmDelete = async (id) => {

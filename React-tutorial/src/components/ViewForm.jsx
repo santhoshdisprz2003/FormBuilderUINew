@@ -12,7 +12,7 @@ import { useParams, useLocation } from "react-router-dom";
 export default function ViewForm() {
   const { id } = useParams();
    const location = useLocation();
-   const [activeTab, setActiveTab] = useState(location.state?.openTab || "configuration");
+   const [activeTab, setActiveTab] = useState( location.state?.openTab ||"configuration");
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export default function ViewForm() {
           className={`tab ${activeTab === "layout" ? "active" : ""}`}
           onClick={() => setActiveTab("layout")}
         >
-          Form Layout
+          Form Content
         </button>
         <button
           className={`tab ${activeTab === "responses" ? "active" : ""}`}
@@ -73,7 +73,7 @@ export default function ViewForm() {
             setFormName={() => {}}
             setDescription={() => {}}
             setVisibility={() => {}}
-            readOnly={true} // ✅ optional: prevent editing in view mode
+            readOnly={true} 
           />
         )}
 

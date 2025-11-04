@@ -1,67 +1,81 @@
-// src/components/LearnerForms.jsx
 import React, { useState, useEffect } from "react";
 import "../styles/LearnerForms.css";
 import { getAllForms, getFormById } from "../api/formService";
 import { getAllResponsesByLearner } from "../api/responses";
 import FormFillView from "./FormFillView";
+import SearchBar from "./SearchBar";
+import ViewResponsesIcon from "../assets/ViewResponsesIcon.png";
 
 export default function LearnerForms() {
   const [activeTab, setActiveTab] = useState("selfService");
   const [forms, setForms] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedForm, setSelectedForm] = useState(null);
   const [responses, setResponses] = useState([]);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [selectedFormDetails, setSelectedFormDetails] = useState(null);
+  const [search, setSearch] = useState("");
 
-  // ✅ Fetch published forms
+  // 🔹 Pagination states
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   useEffect(() => {
-    const fetchForms = async () => {
+    const delay = setTimeout(async () => {
       try {
-        setLoading(true);
-        const response = await getAllForms(0, 50);
-        const formsData = response?.data || [];
-        const published = formsData.filter(
-          (f) => f.status === 1 || f.status === "1"
-        );
-        setForms(published);
+        // setLoading(true);
+
+        if (activeTab === "selfService") {
+          const response = await getAllForms(0, 50, search);
+          const formsData = response?.data || [];
+          const published = formsData.filter(
+            (f) => f.status === 1 || f.status === "1"
+          );
+          setForms(published);
+        } else if (activeTab === "mySubmissions") {
+          // 🔹 Use pagination parameters here
+          const data = await getAllResponsesByLearner(search, pageNumber, pageSize);
+
+          const totalPagesCalc = Math.ceil((data.totalCount || 0) / (data.pageSize || pageSize));
+
+          setTotalPages(totalPagesCalc);
+          setTotalCount(data.totalCount || 0);
+
+          const formatted = (data?.items || []).map((r) => ({
+            responseId: r.responseId,
+            formId: r.formId,
+            formTitle: r.formTitle,
+            submittedOn: new Date(r.submittedAt).toLocaleString(),
+            answers: r.answers || [],
+            files: r.files || [],
+          }));
+          setResponses(formatted);
+        }
       } catch (err) {
-        console.error("Error fetching forms:", err);
-        setError("Failed to load forms");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data");
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
-    };
-    fetchForms();
-  }, []);
+    }, 400); // debounce 400ms
 
-  // ✅ Fetch learner responses
-  useEffect(() => {
-    const fetchResponses = async () => {
-      try {
-        const data = await getAllResponsesByLearner();
-        const formatted = data.map((r) => ({
-          responseId: r.responseId,
-          formId: r.formId,
-          formTitle: r.formTitle,
-          submittedOn: new Date(r.submittedAt).toLocaleString(),
-          answers: r.answers || [],
-          files: r.files || [],
-        }));
-        setResponses(formatted);
-      } catch (err) {
-        console.error("Error fetching learner responses:", err);
-      }
-    };
+    return () => clearTimeout(delay);
+  }, [search, activeTab, pageNumber, pageSize]); // 🔹 included pagination deps
 
-    if (activeTab === "mySubmissions") fetchResponses();
-  }, [activeTab]);
-
-  const filteredSubmissions = responses.filter((item) =>
-    item.formTitle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // 🔹 Pagination handlers
+  const handleNext = () => {
+    if (pageNumber < totalPages) setPageNumber(pageNumber + 1);
+  };
+  const handlePrev = () => {
+    if (pageNumber > 1) setPageNumber(pageNumber - 1);
+  };
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value));
+    setPageNumber(1);
+  };
 
   // ✅ Convert base64 → blob for downloads
   const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
@@ -80,7 +94,6 @@ export default function LearnerForms() {
     return new Blob(byteArrays, { type: contentType });
   };
 
-  // ✅ Load form details when viewing response
   const handleViewResponse = async (response) => {
     try {
       const formData = await getFormById(response.formId);
@@ -94,7 +107,6 @@ export default function LearnerForms() {
   if (loading) return <p className="loading">Loading forms...</p>;
   if (error) return <p className="error">{error}</p>;
 
-  // ✅ Show fill view
   if (selectedForm) {
     return <FormFillView form={selectedForm} onBack={() => setSelectedForm(null)} />;
   }
@@ -111,10 +123,21 @@ export default function LearnerForms() {
         </button>
         <button
           className={`tab ${activeTab === "mySubmissions" ? "active" : ""}`}
-          onClick={() => setActiveTab("mySubmissions")}
+          onClick={() => {
+            setActiveTab("mySubmissions");
+            setPageNumber(1);
+          }}
         >
           My Submissions
         </button>
+      </div>
+
+      <div className="searchbar-container">
+        <SearchBar
+          search={search}
+          setSearch={setSearch}
+          onFilterClick={() => console.log("Open filter popup")}
+        />
       </div>
 
       {/* SELF-SERVICE TAB */}
@@ -125,9 +148,7 @@ export default function LearnerForms() {
           ) : (
             forms.map((form) => (
               <div className="learner-form-card" key={form.id}>
-                <h3 className="form-title">
-                  {form.config?.title || "Untitled Form"}
-                </h3>
+                <h3 className="form-title">{form.config?.title || "Untitled Form"}</h3>
                 <p className="form-description">
                   {form.config?.description || "No description available"}
                 </p>
@@ -135,16 +156,15 @@ export default function LearnerForms() {
                   Created Date:{" "}
                   {form.publishedAt
                     ? new Date(form.publishedAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
                     : "N/A"}
                 </p>
-                   <button
+                <button
                   className="start-button"
-                  onClick={() => { console.log("Selected form:", form);
-                    setSelectedForm(form)}}
+                  onClick={() => setSelectedForm(form)}
                 >
                   Start Completion
                 </button>
@@ -157,15 +177,6 @@ export default function LearnerForms() {
       {/* MY SUBMISSIONS */}
       {activeTab === "mySubmissions" && (
         <div className="submissions-container">
-          <div className="filter-bar">
-            <input
-              type="text"
-              placeholder="Search forms..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
           <table className="submissions-table">
             <thead>
               <tr>
@@ -175,13 +186,22 @@ export default function LearnerForms() {
               </tr>
             </thead>
             <tbody>
-              {filteredSubmissions.length > 0 ? (
-                filteredSubmissions.map((item) => (
+              {responses.length > 0 ? (
+                responses.map((item) => (
                   <tr key={item.responseId}>
                     <td>{item.formTitle}</td>
                     <td>{item.submittedOn}</td>
                     <td>
-                      <button onClick={() => handleViewResponse(item)}>View</button>
+                      <button
+                        className="view-button"
+                        onClick={() => handleViewResponse(item)}
+                      >
+                        <img
+                          src={ViewResponsesIcon}
+                          alt="View"
+                          className="view-response-icon"
+                        />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -192,10 +212,56 @@ export default function LearnerForms() {
               )}
             </tbody>
           </table>
+
+          {/* 🔹 Pagination Section */}
+          {totalCount > 0 && (
+            <div className="pagination-container">
+              <div className="items-info">
+                <label className="page">Items per page</label>
+                <select
+                  className="items-dropdown"
+                  value={pageSize}
+                  onChange={handlePageSizeChange}
+                >
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={10}>10</option>
+                </select>
+                <span className="items-range">
+                  {(pageNumber - 1) * pageSize + 1}–
+                  {Math.min(pageNumber * pageSize, totalCount)} of {totalCount} items
+                </span>
+              </div>
+
+              <div className="pagination-controls">
+
+                <span className="page-info">
+                  Page {pageNumber} of {totalPages}
+                </span>
+                <button
+                  className={`page-btn prev ${pageNumber === 1 ? "disabled" : ""}`}
+                  onClick={handlePrev}
+                  disabled={pageNumber === 1}
+                >
+                  ‹ 
+                </button>
+
+              
+                <button
+                  className={`page-btn next ${pageNumber === totalPages ? "disabled" : ""}`}
+                  onClick={handleNext}
+                  disabled={pageNumber === totalPages}
+                >
+                   ›
+                </button>
+              </div>
+
+            </div>
+          )}
         </div>
       )}
 
-      {/* 🔹 Response Modal */}
+      {/* Response Modal */}
       {selectedResponse && selectedFormDetails && (
         <div
           className="response-modal-overlay"
@@ -236,7 +302,6 @@ export default function LearnerForms() {
                 );
                 let answerDisplay = ans?.answerText || "";
 
-                // 🟣 Handle dropdown / checkbox / radio mapping
                 if (
                   ["drop-down", "checkbox", "radio"].includes(q.type) &&
                   answerDisplay
@@ -250,20 +315,15 @@ export default function LearnerForms() {
                       .map((id) => {
                         const cleanId = id.replace(/[\[\]"]/g, "");
                         const opt = q.options?.find(
-                          (o) =>
-                            o.optionId === cleanId ||
-                            o.id === cleanId
+                          (o) => o.optionId === cleanId || o.id === cleanId
                         );
                         return opt?.value || opt?.label;
                       })
                       .filter(Boolean);
                     answerDisplay = values.join(", ");
-                  } catch {
-                    // leave raw text
-                  }
+                  } catch { }
                 }
 
-                // 🟣 Handle file-upload type
                 if (q.type === "file-upload") {
                   if (file?.base64Content) {
                     const blob = b64toBlob(file.base64Content, file.fileType);
@@ -278,9 +338,7 @@ export default function LearnerForms() {
                       </a>
                     );
                   } else {
-                    answerDisplay = (
-                      <span className="no-answer">No file uploaded</span>
-                    );
+                    answerDisplay = <span className="no-answer">No file uploaded</span>;
                   }
                 }
 
