@@ -71,13 +71,14 @@
 }
 
 .form-header-box {
-  border-top: 4px solid #7c3aed; /* Only top border visible */
+  border-top: 4px solid #7c3aed;
   border-radius: 10px 10px 0 0;
-  background-color: #f9f9f9; /* Soft background */
+  background-color: #faf9ff;
   padding: 1.5rem 1rem 1rem;
   position: relative;
   margin-bottom: 1.5rem;
   margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .form-header-title {
@@ -223,4 +224,40 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
+}
+
+/* ========== HEADER CARD INPUTS ========== */
+.form-header-input,
+.form-header-textarea {
+  width: 97%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-family: "Lato", sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  resize: none;
+}
+
+.form-header-input:focus,
+.form-header-textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
+}
+
+.form-header-textarea {
+  height: 70px;
+  line-height: 1.4;
+  resize: none;
+}
+
+/* Optional – gives a consistent character counter placement if you add one later */
+.form-header-box .char-count {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  font-size: 0.75rem;
+  color: #999;
 }

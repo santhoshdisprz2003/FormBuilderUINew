@@ -108,7 +108,7 @@ export default function LearnerForms() {
   if (error) return <p className="error">{error}</p>;
 
   if (selectedForm) {
-    return <FormFillView form={selectedForm} onBack={() => setSelectedForm(null)} />;
+    return <FormFillView form={selectedForm} onBack={() => {setSelectedForm(null);setActiveTab("mySubmissions");} } />;
   }
 
   return (

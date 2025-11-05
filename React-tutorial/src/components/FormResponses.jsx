@@ -64,7 +64,7 @@ export default function FormResponses() {
           submittedBy: res.submittedUserName || "Unknown",
           userId: res.submittedBy || "-",
           submittedOn: new Date(res.submittedAt).toLocaleString(),
-          email: res.email || "-",
+          email: res.submittedUserName + '@gmail.com' || "-",
           answers: res.answers || [],
           files: res.files || [],
         }));
@@ -166,7 +166,7 @@ export default function FormResponses() {
   };
 
   if (loading) return <div className="loading">Loading responses...</div>;
-  if (error) return <div className="error">{error}</div>;
+  // if (error) return <div className="error">{error}</div>;
 
   if (responses.length === 0)
     return (

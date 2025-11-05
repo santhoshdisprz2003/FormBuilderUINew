@@ -17,7 +17,7 @@
   font-size: 13px;
   color: #777;
   margin-bottom: 12px;
-  padding-left: 18px;
+  padding-left: 15px;
 }
 
 .tab {
@@ -38,7 +38,7 @@
 /* ====== SELF-SERVICE GRID ====== */
 .learner-forms-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
 }
 

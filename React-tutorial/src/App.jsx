@@ -6,6 +6,7 @@ import CreateForm from "./components/CreateForm";
 import BreadcrumbHeader from "./components/BreadcrumbHeader";
 import ViewForm from "./components/ViewForm";
 import LearnerForms from "./components/LearnerForms";
+import "./App.css"
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

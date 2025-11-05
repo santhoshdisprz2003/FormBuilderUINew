@@ -1,5 +1,5 @@
 // src/components/FormLayout.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/FormLayout.css";
 import DraggableField from "./DraggableField";
 import QuestionCard from "./QuestionCard";
@@ -17,8 +17,20 @@ export default function FormLayout({
     handleCopy,
     setFormName,
     setDescription,
+    headerCard,
+    setHeaderCard,
 }) {
-      const [activeIndex, setActiveIndex] = useState(null); 
+    const [activeIndex, setActiveIndex] = useState(null);
+
+useEffect(() => {
+  setHeaderCard((prev) => ({
+    ...prev,
+    title: prev.title || formName || "",
+    description: prev.description || description || "",
+  }));
+}, [formName, description]);
+
+
     return (
         <div className="form-layout-container">
             {/* Left Panel */}
@@ -38,20 +50,36 @@ export default function FormLayout({
                 onDrop={handleDrop}
             >
                 <div className="form-header-box">
-                    <div className="form-header-title">Form Header</div>
+                    <div className="form-header-title">Header Card</div>
 
-                    {/* Form Name */}
+                    {/* Editable Header Title */}
                     <div className="field-wrapper">
-                        <h2 className="form-title">{formName || "Untitled Form"}</h2>
+                        <input
+                            type="text"
+                            className="form-header-input"
+                            value={headerCard.title}
+                            onChange={(e) =>
+                                setHeaderCard((prev) => ({ ...prev, title: e.target.value }))
+                            }
+                            placeholder="Enter header title"
+                            maxLength={80}
+                        />
                     </div>
 
-                    {/* Description */}
-                    {description && (
-                        <div className="field-wrapper">
-                            <p className="form-description">{description}</p>
-                        </div>
-                    )}
+                    {/* Editable Header Description */}
+                    <div className="field-wrapper">
+                        <textarea
+                            className="form-header-textarea"
+                            value={headerCard.description}
+                            onChange={(e) =>
+                                setHeaderCard((prev) => ({ ...prev, description: e.target.value }))
+                            }
+                            placeholder="Enter header description"
+                            maxLength={200}
+                        />
+                    </div>
                 </div>
+
 
                 {/* Drop zone */}
                 {fields.length === 0 && (
@@ -80,7 +108,7 @@ export default function FormLayout({
                             newFields[idx] = updatedField;
                             setFields(newFields);
                         }}
-                        isActive={activeIndex === i}        
+                        isActive={activeIndex === i}
                         setActiveIndex={() => setActiveIndex(i)}
                     />
                 ))}

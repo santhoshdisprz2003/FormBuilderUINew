@@ -30,6 +30,11 @@ export default function CreateForm({ mode = "create" }) {
   const [fields, setFields] = useState([]);
   const [formId, setFormId] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [headerCard, setHeaderCard] = useState({
+  title: "",
+  description: "",
+});
+
 
   const handlePreview = () => setShowPreview(true);
   const navigate = useNavigate();
@@ -106,7 +111,11 @@ export default function CreateForm({ mode = "create" }) {
         }
 
         const layoutData = {
-          headerCard: { id: Date.now().toString(), title: formName, description },
+          headerCard: { 
+          id: Date.now().toString(), 
+          title: headerCard.title, 
+          description: headerCard.description 
+        },
           fields: fields.map((f, i) => ({
             id: f.id || i,
             questionId: f.questionId || Date.now().toString() + i,
@@ -145,7 +154,11 @@ export default function CreateForm({ mode = "create" }) {
 
     try {
       const layoutData = {
-        headerCard: { id: Date.now().toString(), title: formName, description },
+         headerCard: {
+        id: Date.now().toString(),
+        title: headerCard.title,
+        description: headerCard.description,
+      },
         fields: fields.map((f, i) => ({
           id: f.id || i,
           questionId: f.questionId || Date.now().toString() + i,
@@ -232,6 +245,8 @@ export default function CreateForm({ mode = "create" }) {
           handleCopy={handleCopy}
           setFormName={setFormName}
           setDescription={setDescription}
+          headerCard={headerCard}
+  setHeaderCard={setHeaderCard}
         />
       )}
 

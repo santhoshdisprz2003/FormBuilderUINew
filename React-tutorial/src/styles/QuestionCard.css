@@ -501,7 +501,7 @@ input:checked + .slider:before {
 .question-card .dropdown-container,
 .question-card .file-upload-container,
 .question-card .number-field-container {
-  width: calc(100% - 32px);  /* leave 16px padding on both sides */
+   /* leave 16px padding on both sides */
   margin-right: 16px;
   box-sizing: border-box;
 }

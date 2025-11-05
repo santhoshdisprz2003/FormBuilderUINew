@@ -8,6 +8,10 @@ body, html, * {
   box-sizing: border-box;
 }
 
+input,textarea:focus{
+  outline: none;
+}
+
 
 
 /* Global Variables (like Sass variables but in CSS) */
