@@ -1,5 +1,5 @@
 // src/components/FormLayout.jsx
-import React from "react";
+import React, { useState } from "react";
 import "../styles/FormLayout.css";
 import DraggableField from "./DraggableField";
 import QuestionCard from "./QuestionCard";
@@ -18,6 +18,7 @@ export default function FormLayout({
     setFormName,
     setDescription,
 }) {
+      const [activeIndex, setActiveIndex] = useState(null); 
     return (
         <div className="form-layout-container">
             {/* Left Panel */}
@@ -79,6 +80,8 @@ export default function FormLayout({
                             newFields[idx] = updatedField;
                             setFields(newFields);
                         }}
+                        isActive={activeIndex === i}        
+                        setActiveIndex={() => setActiveIndex(i)}
                     />
                 ))}
 

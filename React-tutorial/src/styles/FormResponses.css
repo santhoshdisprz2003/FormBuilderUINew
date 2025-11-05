@@ -26,7 +26,7 @@
 }
 
 .resp-tab.active {
-  background: #4f46e5;
+  background: #5D38DF;
   color: #fff;
 }
 
@@ -76,7 +76,7 @@
   align-items: center;
   gap: 6px;
   background: #f9fafb;
-  background-color: #4f46e5;
+  background-color: #5D38DF;
   color: white;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -169,7 +169,7 @@
 
 /* 🔹 The input field */
 .response-search-input {
-  width: 80%;
+  width: 90%;
   padding: 12px 12px 12px 31px;/* left padding leaves room for icon */
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -295,13 +295,14 @@
 
 /* Pagination Section */
 .pagination-container {
-  margin-top: 1rem;
+  
   padding: 0.75rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  border-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   font-size: 14px;

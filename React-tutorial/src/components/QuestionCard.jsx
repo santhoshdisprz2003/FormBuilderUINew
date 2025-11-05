@@ -5,7 +5,8 @@ import DeleteIcon from "../assets/DeleteIcon.png";
 import CalendarIcon from "../assets/CalendarIcon.png";
 import FileSizeIcon from "../assets/FileSizeIcon.png";
 
-export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate }) {
+export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,isActive, 
+  setActiveIndex }) {
   const [question, setQuestion] = useState(field.question || "");
   const [description, setDescription] = useState(field.description || "");
   const [showDescription, setShowDescription] = useState(field.showDescription || false);
@@ -98,7 +99,10 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
   };
 
   return (
-    <div className="question-card">
+    <div 
+  className={`question-card ${isActive ? "active" : "inactive"}`} 
+  onClick={()=>setActiveIndex(index)}
+>
       {/* Question Input */}
       <div className="question-input-wrapper">
         <input
@@ -108,6 +112,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={150}
           className="question-input"
+          disabled={!isActive}
         />
         <span className="char-count">{question.length}/150</span>
       </div>
@@ -122,6 +127,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
             onChange={(e) => setDescription(e.target.value)}
             maxLength={150}
             className="description-input"
+            disabled={!isActive}
           />
           <span className="char-count">{description.length}/150</span>
         </div>
@@ -132,8 +138,8 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
         <input
           type="text"
           value={`${field.label} (Up to ${field.maxChar} characters)`}
-          disabled
           className="field-type-display"
+          disabled={!isActive}
         />
       )}
 
@@ -145,6 +151,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               className="date-picker-input"
+              disabled={!isActive}
             />
             <span className="date-placeholder">
               {selectedDate
@@ -190,11 +197,13 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
                   value={opt.value}
                   onChange={(e) => handleOptionChange(opt.id, e.target.value)}
                   className="option-input"
+                  disabled={!isActive}
                 />
                 {options.length > 1 && (
                   <button
                     onClick={() => handleDeleteOption(opt.id)}
                     className="option-delete-btn"
+                    disabled={!isActive}
                   >
                     ✕
                   </button>
@@ -202,7 +211,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
               </div>
             ))}
           </div>
-          <button onClick={handleAddOption} className="add-option-btn">+ Add option</button>
+          <button onClick={handleAddOption} className="add-option-btn" disabled={!isActive}>+ Add option</button>
           <div className="selection-type-section">
             <label className="selection-type-label">Selection Type</label>
             <div className="selection-type-options">
@@ -211,6 +220,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
                   type="radio"
                   name={`selectionType-${index}`}
                   value="single"
+                  disabled={!isActive}
                   checked={selectionType === "single"}
                   onChange={(e) => setSelectionType(e.target.value)}
                 />
@@ -223,6 +233,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
                   value="multi"
                   checked={selectionType === "multi"}
                   onChange={(e) => setSelectionType(e.target.value)}
+                  disabled={!isActive}
                 />
                 <span className="radio-text">Multi select</span>
               </label>
@@ -254,8 +265,8 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
           <input
             type="text"
             value="Numeric value"
-            disabled
             className="number-field-display"
+            disabled={!isActive}
           />
         </div>
       )}
@@ -280,6 +291,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
                 type="checkbox"
                 checked={showDescription}
                 onChange={() => setShowDescription((v) => !v)}
+                disabled={!isActive}
               />
               <span className="slider round" />
             </label>
@@ -292,6 +304,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate 
                 type="checkbox"
                 checked={required}
                 onChange={() => setRequired((v) => !v)}
+                disabled={!isActive}
               />
               <span className="slider round" />
             </label>
