@@ -1,15 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/FormPreviewModal.css";
+import FileSizeIcon from "../assets/FileSizeIcon.png";
 
 export default function FormPreviewModal({ show, onClose, formName, description, fields }) {
+  const [inputValues, setInputValues] = useState({});
+
+  useEffect(() => {
+    if (fields && fields.length > 0) {
+      const initialValues = {};
+      fields.forEach((q, idx) => {
+        initialValues[idx] = "";
+      });
+      setInputValues(initialValues);
+    }
+  }, [fields, show]);
+
   if (!show) return null;
+
+  const handleClearForm = () => {
+    const cleared = {};
+    Object.keys(inputValues).forEach((key) => {
+      cleared[key] = "";
+    });
+    setInputValues(cleared);
+  };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        {/* Header */}
+        {/* 🔙 Header with Back Button */}
         <div className="preview-header">
-          <h2 className="preview-title">{formName || "Untitled Form"}</h2>
+          <button className="back-btn" onClick={onClose}>
+            <span className="arrow">←</span> {/* ← Unicode back arrow */}
+          </button>
         </div>
 
         {/* Inner Card */}
@@ -26,29 +49,30 @@ export default function FormPreviewModal({ show, onClose, formName, description,
             <div className="preview-fields">
               {fields.map((q, idx) => (
                 <div key={idx} className="preview-question">
-                  {/* Question Number */}
                   <div className="question-number">{idx + 1}.</div>
 
-                  {/* Question Content */}
                   <div className="question-content">
-                    {/* Label */}
                     <label className="question-label">
-                      {q.question || q.label|| "Untitled Question"}
+                      {q.question || q.label || "Untitled Question"}
                       {q.required && <span className="required">*</span>}
                     </label>
 
-                    {/* Description */}
                     {q.description && (
                       <p className="question-desc">{q.description}</p>
                     )}
 
-                    {/* Input Fields */}
                     {q.type === "short-text" && (
                       <input
                         type="text"
                         placeholder="Your answer"
-                        className="input-field"
-                        
+                        className="input-fields"
+                        value={inputValues[idx] || ""}
+                        onChange={(e) =>
+                          setInputValues((prev) => ({
+                            ...prev,
+                            [idx]: e.target.value,
+                          }))
+                        }
                       />
                     )}
 
@@ -56,16 +80,41 @@ export default function FormPreviewModal({ show, onClose, formName, description,
                       <textarea
                         placeholder="Your answer"
                         className="textarea-field"
-                        
+                        value={inputValues[idx] || ""}
+                        onChange={(e) =>
+                          setInputValues((prev) => ({
+                            ...prev,
+                            [idx]: e.target.value,
+                          }))
+                        }
                       />
                     )}
 
                     {q.type === "date-picker" && (
-                      <input type="date" className="input-field"  />
+                      <input
+                        type="date"
+                        className="input-fields"
+                        value={inputValues[idx] || ""}
+                        onChange={(e) =>
+                          setInputValues((prev) => ({
+                            ...prev,
+                            [idx]: e.target.value,
+                          }))
+                        }
+                      />
                     )}
 
                     {q.type === "drop-down" && (
-                      <select className="input-field" >
+                      <select
+                        className="input-fields"
+                        value={inputValues[idx] || ""}
+                        onChange={(e) =>
+                          setInputValues((prev) => ({
+                            ...prev,
+                            [idx]: e.target.value,
+                          }))
+                        }
+                      >
                         <option value="">Select an option</option>
                         {q.options?.map((opt, i) => (
                           <option key={i}>{opt.value || opt}</option>
@@ -74,7 +123,12 @@ export default function FormPreviewModal({ show, onClose, formName, description,
                     )}
 
                     {q.type === "file-upload" && (
-                      <div className="file-upload-box" >
+                      <div className="file-upload-box">
+                        <img
+                          src={FileSizeIcon}
+                          alt="Upload"
+                          className="upload-icon"
+                        />
                         <p>
                           Drop files here or <span className="browse">Browse</span>
                         </p>
@@ -88,7 +142,14 @@ export default function FormPreviewModal({ show, onClose, formName, description,
                       <input
                         type="number"
                         placeholder="Your answer"
-                        className="input-field"
+                        className="input-fields"
+                        value={inputValues[idx] || ""}
+                        onChange={(e) =>
+                          setInputValues((prev) => ({
+                            ...prev,
+                            [idx]: e.target.value,
+                          }))
+                        }
                       />
                     )}
                   </div>
@@ -101,7 +162,7 @@ export default function FormPreviewModal({ show, onClose, formName, description,
 
           {/* Footer */}
           <div className="preview-footer">
-            <button className="clear-btn" onClick={onClose}>
+            <button className="clear-btn" onClick={handleClearForm}>
               Clear Form
             </button>
           </div>

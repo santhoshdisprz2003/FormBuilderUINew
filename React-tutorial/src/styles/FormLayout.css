@@ -97,28 +97,6 @@
 }
 
 
-/* .header-input,
-.header-textarea {
-  width: 97% !important;
-  border: 1px solid #e1e1e1;
-  border-radius: 6px;
-  padding: 0.6rem 0.8rem;
-  margin-top: 0.4rem;
-  font-size: 0.9rem;
-  outline: none;
-  resize: none;
-  position: relative;
-}
-
-.header-input:focus,
-.header-textarea:focus {
-  border-color: #7c3aed !important;
-}
-
-.header-textarea {
-  margin-top: 0.8rem;
-  height: 70px;
-} */
 
 .form-title {
     font-family: 'Lato', sans-serif;

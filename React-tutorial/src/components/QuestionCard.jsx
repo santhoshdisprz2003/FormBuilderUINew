@@ -134,10 +134,19 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
       )}
 
       {/* Field-Specific UI */}
-      {field.maxChar && (
+      {field.type=="short-text" && (
         <input
           type="text"
-          value={`${field.label} (Up to ${field.maxChar} characters)`}
+          value={`Short text (Up to ${field.maxChar} characters)`}
+          className="field-type-display"
+          disabled={!isActive}
+        />
+      )}
+
+      {field.type=="long-text" && (
+        <input
+          type="text"
+          value={`Long text (Up to ${field.maxChar} characters)`}
           className="field-type-display"
           disabled={!isActive}
         />
@@ -311,8 +320,6 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
           </div>
         </div>
       </div>
-
-      {required && <span className="required-indicator">* Required</span>}
     </div>
   );
 }

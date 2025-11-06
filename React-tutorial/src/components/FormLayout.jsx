@@ -4,22 +4,20 @@ import "../styles/FormLayout.css";
 import DraggableField from "./DraggableField";
 import QuestionCard from "./QuestionCard";
 import DragFieldIcon from "../assets/DragFieldIcon.png";
+import { useFormContext } from "../context/FormContext";
 
 
-export default function FormLayout({
-    inputFields,
-    fields,
-    setFields,
+
+export default function FormLayout({inputFields}) {
+
+     const {
     formName,
     description,
-    handleDrop,
-    handleDelete,
-    handleCopy,
-    setFormName,
-    setDescription,
+    fields,
+    setFields,
     headerCard,
     setHeaderCard,
-}) {
+  } = useFormContext();
     const [activeIndex, setActiveIndex] = useState(null);
 
 useEffect(() => {
@@ -29,6 +27,24 @@ useEffect(() => {
     description: prev.description || description || "",
   }));
 }, [formName, description]);
+
+// --- Drag and Drop Handlers ---
+  const handleDrop = (e) => {
+    e.preventDefault();
+    try {
+      const data = e.dataTransfer.getData("text/plain");
+      const field = JSON.parse(data);
+      setFields((prev) => [...prev, { ...field, id: Date.now() }]);
+    } catch {}
+  };
+
+  const handleDelete = (index) => {
+    setFields((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleCopy = (index) => {
+    setFields((prev) => [...prev, { ...prev[index], id: Date.now() }]);
+  };
 
 
     return (

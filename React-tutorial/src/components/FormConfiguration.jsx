@@ -1,15 +1,21 @@
 // src/components/FormConfiguration.jsx
 import React from "react";
 import "../styles/FormConfiguration.css";
+import { useFormContext } from "../context/FormContext";
 
-export default function FormConfiguration({
-  formName,
-  description,
-  visibility,
-  setFormName,
-  setDescription,
-  setVisibility,
-}) {
+export default function FormConfiguration() {
+  const {
+    formName,
+    setFormName,
+    description,
+    setDescription,
+    visibility,
+    setVisibility,
+  } = useFormContext();
+
+  console.log(formName);
+  
+
   return (
     <div className="form-section">
       <h3 className="section-title">Form Details</h3>

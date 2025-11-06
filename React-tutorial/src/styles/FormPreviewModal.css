@@ -23,15 +23,7 @@ animation: fadeIn 0.3s ease-in-out;
 }
 
 /* Top Purple Header Bar */
-.preview-header {
-background: linear-gradient(to right, #4f46e5, #7c3aed);
-color: white;
-text-align: center;
-padding: 16px 0;
-border-top-left-radius: 12px;
-border-top-right-radius: 12px;
-font-weight: 500;
-}
+
 
 .preview-title {
 font-size: 1.15rem;
@@ -55,20 +47,11 @@ border-bottom: 1px solid #e5e7eb;
 padding-bottom: 18px;
 }
 
-/* .form-title {
-font-size: 1.25rem;
-font-weight: 600;
-color: #111827;
-margin-bottom: 4px;
+.upload-icon{
+    width: 70px;
+    height: 70px;
+
 }
-
-.form-description {
-color: #6b7280;
-font-size: 0.95rem;
-line-height: 1.5;
-} */
-
-/* Question Layout */
 .preview-fields {
 display: flex;
 flex-direction: column;
@@ -80,16 +63,11 @@ display: flex;
 align-items: flex-start;
 gap: 14px;
 background: #fff;
-border: 1px dashed #cbd5e1;
 border-radius: 10px;
 padding: 18px 20px;
 transition: all 0.2s ease-in-out;
 }
 
-.preview-question:hover {
-border: 1px solid #4f46e5;
-box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-}
 
 .question-number {
 font-weight: 600;
@@ -123,7 +101,7 @@ margin-bottom: 10px;
 }
 
 /* Input Styles */
-.input-field,
+.input-fields,
 .textarea-field,
 select {
 width: 100%;
@@ -179,10 +157,10 @@ color: #9ca3af;
 
 /* Footer */
 .preview-footer {
-margin-top: 40px;
-text-align: left;
-border-top: 1px solid #e5e7eb;
-padding-top: 18px;
+margin: 40px -45px 0; /* adjust -24px to match your card padding */
+  padding: 18px 24px 0;
+  border-top: 1px solid #e5e7eb;
+  text-align: left;
 }
 
 .clear-btn {
@@ -218,4 +196,37 @@ to {
 opacity: 1;
 transform: scale(1);
 }
+}
+
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.back-btn:hover {
+  color: #007bff;
+}
+
+.arrow {
+  font-size: 25px;
+  font-weight: bold;
+  color:black;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 8px solid  #5D38DF;
 }

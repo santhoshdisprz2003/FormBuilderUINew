@@ -51,7 +51,6 @@
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 16px 20px;
-  background: #fafbff;
   transition: all 0.2s;
 }
 .response-question-card:hover {

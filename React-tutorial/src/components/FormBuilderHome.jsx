@@ -14,13 +14,12 @@ export default function FormBuilderHome() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  
 
-  // ✅ Debounce timer for search
+  // Debounce timer for search
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       getForms(search);
-    }, 0); // adjust delay for smoothness
+    }, 400); 
     return () => clearTimeout(delayDebounce);
   }, [search]);
 

@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import Login from "./components/Login";
 import FormBuilderHome from "./components/FormBuilderHome";
 import CreateForm from "./components/CreateForm";
 import BreadcrumbHeader from "./components/BreadcrumbHeader";
 import ViewForm from "./components/ViewForm";
 import LearnerForms from "./components/LearnerForms";
-import "./App.css"
+import "./App.css";
+import { FormProvider } from "./context/FormContext";
+
+// ✅ Toastify imports
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
-  const location = useLocation(); // 👈 access current route
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -86,14 +97,43 @@ function AppContent() {
 
         <Route
           path="/form-builder/edit/:formId"
-          element={isLoggedIn ? <CreateForm mode="edit" /> : <Navigate to="/login" replace />}
+          element={
+            isLoggedIn ? (
+              
+                <CreateForm mode="edit" />
+             
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
 
         <Route
           path="/create-form"
-          element={isLoggedIn ? <CreateForm /> : <Navigate to="/login" replace />}
+          element={
+            isLoggedIn ? (
+              
+                <CreateForm />
+             
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
         />
       </Routes>
+
+      {/* ✅ Toast container globally added here */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 }

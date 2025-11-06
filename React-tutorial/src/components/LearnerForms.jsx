@@ -17,7 +17,7 @@ export default function LearnerForms() {
   const [selectedFormDetails, setSelectedFormDetails] = useState(null);
   const [search, setSearch] = useState("");
 
-  // 🔹 Pagination states
+  
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -58,7 +58,7 @@ export default function LearnerForms() {
         console.error("Error fetching data:", err);
         setError("Failed to load data");
       } finally {
-        // setLoading(false);
+       
       }
     }, 400); // debounce 400ms
 
@@ -347,7 +347,7 @@ export default function LearnerForms() {
                     <h4 className="question-label" >
                       {index + 1} {q.label}
                     </h4>
-                    {q.descriptionEnabled && q.description && (
+                    {q.description && (
                       <p className="question-description">{q.description}</p>
                     )}
                     <div className="answer-section">

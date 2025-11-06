@@ -411,3 +411,11 @@
   font-weight: 500;
   cursor: not-allowed;
 }
+
+.question-description2{
+      font-size: 16px;
+    color: #6b7280;
+    margin-left: 1px;
+    margin-bottom: 8px;
+    margin-top: 3px;
+}

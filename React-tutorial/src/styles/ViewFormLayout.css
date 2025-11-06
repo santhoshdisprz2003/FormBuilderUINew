@@ -13,6 +13,9 @@
   border: 1px solid #e5e7eb;
 }
 
+.header-input1{
+  padding-bottom: 8px;
+}
 
 .input-title {
   font-weight: 600;
@@ -31,12 +34,13 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: white;
+  background: #F3F2F3;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   cursor: not-allowed;
   font-size: 14px;
   color: #111827;
+  height: 45px;
 }
 
 .input-field.disabled {
@@ -90,6 +94,12 @@
   padding: 16px;
 } */
 
+img{
+  background-color:2px solid #D8D8D8;
+  width: 24px;
+  height:24px;
+}
+
 .question-label {
   font-weight: 500;
   color: #111827;
@@ -100,11 +110,12 @@
   margin-left: 4px;
 }
 
-.question-description {
-  font-size: 13px;
-  color: #6b7280;
-  margin-top: 4px;
-  margin-bottom: 8px;
+.question-description1 {
+      font-size: 16px;
+    color: #6b7280;
+    margin-left: 15px;
+    margin-bottom: 8px;
+    margin-top: -11px;
 }
 
 /* Options */
@@ -170,7 +181,6 @@
 }
 
 .dropdown-field {
-  border: 1px solid #ccc;
   border-radius: 6px;
   background: #fff;
   padding: 8px 10px;
@@ -197,4 +207,38 @@
   font-size: 0.9rem;
   color: #888;
   margin-top: 4px;
+}
+
+.file-icon{
+  width: 50px;
+  height: 40px;
+}
+
+.file-upload-icon{
+  margin-top: 4px;
+  gap:5px;
+}
+
+.question-input1{
+  background-color: #F3F2F3;
+      width: 100%;
+    padding: 10px 40px 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s 
+ease;
+    box-sizing: border-box;
+}
+
+.form-header-box1{
+  border-top: 4px solid #7c3aed;
+    border-radius: 10px 10px 0 0;
+    background-color: #faf9ff;
+    padding: 1.5rem 1rem 1rem;
+    position: relative;
+    margin-bottom: 1.5rem;
+    margin-top: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }

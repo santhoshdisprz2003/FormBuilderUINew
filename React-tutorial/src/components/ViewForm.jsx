@@ -37,6 +37,9 @@ export default function ViewForm() {
   if (loading) return <div className="loading">Loading form details...</div>;
   if (!formData) return <div className="error">Form not found.</div>;
 
+  console.log(formData);
+  
+
   return (
     <div className="create-form-container">
       
@@ -67,8 +70,8 @@ export default function ViewForm() {
       <div className="tab-content">
         {activeTab === "configuration" && (
           <FormConfiguration
-            formName={formData.config?.title || ""}
-            description={formData.config?.description || ""}
+            formName={formData?.config?.title || ""}
+            description={formData?.config?.description || ""}
             visibility={false}
             setFormName={() => {}}
             setDescription={() => {}}

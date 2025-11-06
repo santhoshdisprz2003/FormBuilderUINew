@@ -44,7 +44,7 @@
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  width:200px;
+  width:125px;
 }
 
 .create-btn:hover {
@@ -71,7 +71,7 @@
   min-height: 120px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s;
-  width:421px;
+  width:450px;
 }
 
 .card:hover {

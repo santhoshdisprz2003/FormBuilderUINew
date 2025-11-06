@@ -2,24 +2,26 @@ import React from "react";
 import "../styles/ViewFormLayout.css";
 
 // ✅ Reuse same icons and colors as FormLayout
-import ShortTextIcon from "../assets/ShortTextIcon.png";
-import LongTextIcon from "../assets/LongTextIcon.png";
-import DatePickerIcon from "../assets/DatePickerIcon.png";
-import DropDownIcon from "../assets/DropDownIcon.png";
-import FileUploadIcon from "../assets/FileUploadIcon.png";
-import NumberIcon from "../assets/NumberIcon.png";
+import ViewShortTextIcon from "../assets/ViewShortTextIcon.png";
+import ViewLongTextIcon from "../assets/ViewLongTextIcon.png";
+import ViewDatePickerIcon from "../assets/ViewDatePickerIcon.png";
+import ViewDropDownIcon from "../assets/ViewDropDownIcon.png";
+import ViewFileUploadIcon from "../assets/ViewFileUploadIcon.png";
+import ViewNumberIcon from "../assets/ViewNumberIcon.png";
+import FileSizeIcon from "../assets/FileSizeIcon.png";
+
 
 export default function ViewFormLayout({ formData }) {
   const header = formData?.layout?.headerCard || {};
   const fields = formData?.layout?.fields || [];
 
   const inputFields = [
-    { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#4F46E5" },
-    { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: LongTextIcon, borderColor: "#7B61FF40" },
-    { id: 3, label: "Date Picker", type: "date-picker", icon: DatePickerIcon, borderColor: "#BBE9E4" },
-    { id: 4, label: "Dropdown", type: "drop-down", icon: DropDownIcon, borderColor: "#DBF3CC" },
-    { id: 5, label: "File Upload", type: "file-upload", icon: FileUploadIcon, borderColor: "#E7CCF3" },
-    { id: 6, label: "Number", type: "number", icon: NumberIcon, borderColor: "#F3CCE1" },
+    { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ViewShortTextIcon, borderColor: "#4F46E5" },
+    { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: ViewLongTextIcon, borderColor: "#7B61FF40" },
+    { id: 3, label: "Date Picker", type: "date-picker", icon: ViewDatePickerIcon, borderColor: "#BBE9E4" },
+    { id: 4, label: "Dropdown", type: "drop-down", icon: ViewDropDownIcon, borderColor: "#DBF3CC" },
+    { id: 5, label: "File Upload", type: "file-upload", icon: ViewFileUploadIcon, borderColor: "#E7CCF3" },
+    { id: 6, label: "Number", type: "number", icon: ViewNumberIcon, borderColor: "#F3CCE1" },
   ];
 
   return (
@@ -32,7 +34,7 @@ export default function ViewFormLayout({ formData }) {
             <div
               key={field.id}
               className="input-field disabled"
-              style={{ borderLeft: `4px solid ${field.borderColor}` }}
+            
             >
               <img src={field.icon} alt={field.label} className="input-icon" />
               <span>{field.label}</span>
@@ -44,19 +46,12 @@ export default function ViewFormLayout({ formData }) {
       {/* ---------- Right Panel ---------- */}
       <div className="form-layout-right">
         {/* Header */}
-        <div className="form-header-box readonly">
+        <div className="form-header-box1">
           <div className="form-header-title">Form Header</div>
-          <input
-            type="text"
-            className="header-input"
-            value={header.title || formData?.config?.title || ""}
-            readOnly
-          />
-          <textarea
-            className="header-textarea"
-            value={header.description || formData?.config?.description || ""}
-            readOnly
-          />
+          <h3 className="header-input1">{header.title || formData?.config?.title || ""}</h3>
+          <h5
+            className="header-textarea1">
+          {header.description || formData?.config?.description || ""}</h5>
         </div>
 
         {/* ---------- Questions ---------- */}
@@ -67,11 +62,11 @@ export default function ViewFormLayout({ formData }) {
             <div key={index} className="question-card view-mode">
               <div className="question-label">
                 {index + 1}. {q.label}
-                {q.required && <span className="required">*</span>}
+                
               </div>
 
-              {(q.description_enabled || q.descriptionEnabled) && q.description && (
-  <p className="question-description">{q.description}</p>
+              {q.description && (
+  <p className="question-description1">{q.description}</p>
 )}
 
               {/* ---------- Field Types ---------- */}
@@ -80,7 +75,7 @@ export default function ViewFormLayout({ formData }) {
               {q.type === "short-text" && (
                 <input
                   type="text"
-                  className="question-input"
+                  className="question-input1"
                   placeholder={`Short text answer (max ${q.maxChar || 100} chars)`}
                   readOnly
                 />
@@ -89,7 +84,7 @@ export default function ViewFormLayout({ formData }) {
               {/* Long Text */}
               {q.type === "long-text" && (
                 <textarea
-                  className="question-input"
+                  className="question-input1"
                   placeholder={`Long text answer (max ${q.maxChar || 500} chars)`}
                   readOnly
                 />
@@ -97,7 +92,7 @@ export default function ViewFormLayout({ formData }) {
 
               {/* Date Picker */}
               {q.type === "date-picker" && (
-                <input type="date" className="question-input" readOnly />
+                <input type="date" className="question-input1" readOnly />
               )}
 
               {/* Dropdown (rendered as radio buttons) */}
@@ -106,7 +101,7 @@ export default function ViewFormLayout({ formData }) {
                   {q.options?.length > 0 ? (
                     <div className="dropdown-field" readOnly>
                       {q.options.map((opt, i) => (
-                        <div key={i} className="dropdown-option">
+                        <div key={i} className="question-input1">
                           {opt.value || opt}
                         </div>
                       ))}
@@ -119,14 +114,16 @@ export default function ViewFormLayout({ formData }) {
 
               {/* File Upload */}
               {q.type === "file-upload" && (
-                <div className="file-upload-display">
-                  <div className="file-upload-icon"></div>
-                  <div className="file-upload-text">
-                    <span className="file-upload-title">Upload a file</span>
-                    <span className="file-upload-info">
-                      Max 25 MB | Formats: PDF, DOCX, JPG
-                    </span>
+                <div className="question-input1">
+                  <div className="file-upload-icon">
+                     <img src={FileSizeIcon} className="file-icon"></img>
                   </div>
+                  
+                    <p className="file-upload-title">File Upload </p>
+                    <p className="file-upload-info">
+                      Supported files:PDF,PNG,JPG |Max file 2 MB
+                    </p>
+                  
                 </div>
               )}
 
@@ -134,7 +131,7 @@ export default function ViewFormLayout({ formData }) {
               {q.type === "number" && (
                 <input
                   type="number"
-                  className="question-input"
+                  className="question-input1"
                   placeholder="Enter number"
                   readOnly
                 />

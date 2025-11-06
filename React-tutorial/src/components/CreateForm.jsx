@@ -20,24 +20,39 @@ import {
   publishForm,
   getFormById
 } from "../api/formService";
+import { useFormContext } from "../context/FormContext";
+import { toast } from "react-toastify";
+
+
+
 
 export default function CreateForm({ mode = "create" }) {
+    const {
+    formId,
+    setFormId,
+    formName,
+    setFormName,
+    description,
+    setDescription,
+    visibility,
+    setVisibility,
+    fields,
+    setFields,
+    headerCard,
+    setHeaderCard,
+    activeTab,
+    setActiveTab,
+    showPreview,
+    setShowPreview,
+  } = useFormContext();
+
   const { formId: paramFormId } = useParams();
-  const [activeTab, setActiveTab] = useState("configuration");
-  const [formName, setFormName] = useState("");
-  const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState(false);
-  const [fields, setFields] = useState([]);
-  const [formId, setFormId] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const [headerCard, setHeaderCard] = useState({
-  title: "",
-  description: "",
-});
+  const navigate = useNavigate();
+
+ 
 
 
   const handlePreview = () => setShowPreview(true);
-  const navigate = useNavigate();
 
 
   // Available input field types
@@ -95,18 +110,18 @@ export default function CreateForm({ mode = "create" }) {
         if (!formId) {
           const response = await createFormConfig(configData);
           setFormId(response.id);
-          alert("✅ Form configuration created and saved as draft!");
-          navigate("/"); // redirect to home after saving draft
+          toast.success(" Form configuration created and saved as draft!");
+          navigate("/"); 
           return response.id;
         } else {
           await updateFormConfig(formId, configData);
-          alert(" Form configuration updated and saved as draft!");
-          navigate("/"); // redirect to home after saving draft
+          toast.success(" Form configuration updated and saved as draft!");
+          navigate("/"); 
           return formId;
         }
       } else if (activeTab === "layout") {
         if (!formId) {
-          alert("Please save configuration first before layout draft!");
+          toast.error("Please save configuration first before layout draft!");
           return;
         }
 
@@ -136,19 +151,19 @@ export default function CreateForm({ mode = "create" }) {
         };
 
         await updateFormLayout(formId, layoutData);
-        alert(" Form layout Updated and saved as draft!");
-        navigate("/"); // redirect to home after saving draft
+        toast.success(" Form layout Updated and saved as draft!");
+        navigate("/"); 
       }
     } catch (err) {
-      console.error("❌ Error saving draft:", err);
-      alert("❌ Failed to save draft.");
+      toast.error(" Error saving draft:");
+      toast.error(" Failed to save draft.");
     }
   };
 
   // --- Publish Form ---
   const handlePublish = async () => {
     if (!formId) {
-      alert("Please save the configuration first!");
+      toast.error("Please save the configuration first!");
       return;
     }
 
@@ -180,26 +195,13 @@ export default function CreateForm({ mode = "create" }) {
 
       await updateFormLayout(formId, layoutData);
       const publishedForm = await publishForm(formId);
-      alert(" Form published successfully...");
+      toast.success(" Form published successfully...");
       navigate("/"); // redirect to home after saving draft
     } catch (err) {
-      console.error("Error publishing form:", err);
-      alert("❌ Failed to publish form.");
+      toast.error("Error publishing form:");
+      toast.error("Failed to publish form.");
     }
   };
-
-  // --- Drag and Drop handlers ---
-  const handleDrop = (e) => {
-    e.preventDefault();
-    try {
-      const data = e.dataTransfer.getData("text/plain");
-      const field = JSON.parse(data);
-      setFields([...fields, { ...field, id: Date.now() }]);
-    } catch {}
-  };
-
-  const handleDelete = (index) => setFields(fields.filter((_, i) => i !== index));
-  const handleCopy = (index) => setFields([...fields, { ...fields[index], id: Date.now() }]);
 
   return (
     <div className="create-form-container">
@@ -226,28 +228,9 @@ export default function CreateForm({ mode = "create" }) {
       {/* Render Tab */}
       {activeTab === "configuration" ? (
         <FormConfiguration
-          formName={formName}
-          description={description}
-          visibility={visibility}
-          setFormName={setFormName}
-          setDescription={setDescription}
-          setVisibility={setVisibility}
         />
       ) : (
-        <FormLayout
-          inputFields={inputFields}
-          fields={fields}
-          setFields={setFields}
-          formName={formName}
-          description={description}
-          handleDrop={handleDrop}
-          handleDelete={handleDelete}
-          handleCopy={handleCopy}
-          setFormName={setFormName}
-          setDescription={setDescription}
-          headerCard={headerCard}
-  setHeaderCard={setHeaderCard}
-        />
+        <FormLayout  inputFields={inputFields}/>
       )}
 
       {/* Footer */}
