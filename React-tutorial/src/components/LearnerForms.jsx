@@ -344,8 +344,8 @@ export default function LearnerForms() {
 
                 return (
                   <div key={q.questionId} className="response-question-card">
-                    <h4 className="question-label">
-                      {index + 1}. {q.label}
+                    <h4 className="question-label" >
+                      {index + 1} {q.label}
                     </h4>
                     {q.descriptionEnabled && q.description && (
                       <p className="question-description">{q.description}</p>

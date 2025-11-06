@@ -339,10 +339,10 @@ export default function FormResponses() {
                     <div className="question-header">
                       <span className="question-number">{index + 1}</span>
                       <div className="question-content">
-                        <h4 className="question-label">{q.label}</h4>
+                        <h4 className="question-label" style={{marginBottom: 0}}>{q.label}</h4>
                         {q.descriptionEnabled && q.description && (
                           <p className="question-description">{q.description}</p>
-                        )}
+                        )}    
                       </div>
                     </div>
                     <div className="answer-section">

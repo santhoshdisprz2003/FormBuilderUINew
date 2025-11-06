@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "../styles/FormList.css";
 import { useNavigate } from "react-router-dom";
+import SearchIcon from "../assets/SearchIcon.png";
+
 
 export default function FormList({
   forms,
@@ -15,6 +17,8 @@ export default function FormList({
   const [deletePopup, setDeletePopup] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+  const [enabledForms, setEnabledForms] = useState({});
+
 
   // ✅ Filter forms by title
   const filteredForms = forms; // API already returns filtered data
@@ -65,17 +69,22 @@ export default function FormList({
       <div className="header">
         <p>Form List</p>
         <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search forms"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-          />
+          <div className="search-input-wrapper">
+            <img src={SearchIcon} alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
           <button className="create-btn" onClick={handleCreateForm}>
             Create Form
           </button>
         </div>
+
       </div>
 
       {/* ===== CARD GRID ===== */}
@@ -161,17 +170,36 @@ export default function FormList({
                 <span className={`status-btn ${getStatusClass(form?.status)}`}>
                   {getStatusText(form?.status)}
                 </span>
+                <div className="toggle-wrapper">
+                  <span className="toggle-label">Enabled</span>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={!!enabledForms[form.id]}
+                      onChange={() =>
+                        setEnabledForms((prev) => ({
+                          ...prev,
+                          [form.id]: !prev[form.id],
+                        }))
+                      }
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+
                 <button
-                  className="viewresponse-btn"
+                  className={`viewresponse-btn ${!isPublished(form?.status) ? "disabled" : ""}`}
                   onClick={() =>
+                    isPublished(form?.status) &&
                     navigate(`/form-builder/view/${form.id}`, {
-                      state: { openTab: "responses" }, 
+                      state: { openTab: "responses" },
                     })
                   }
-
+                  disabled={!isPublished(form?.status)}
                 >
                   View Responses
                 </button>
+
               </div>
             </div>
           );
