@@ -10,11 +10,11 @@ export default function FormFillView({ form, onBack }) {
   const [responses, setResponses] = useState({});
   const [showClearModal, setShowClearModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [errors, setErrors] = useState({}); // 🆕 stores missing field messages
+  const [errors, setErrors] = useState({}); 
 
   const handleChange = (fieldId, value) => {
     setResponses((prev) => ({ ...prev, [fieldId]: value }));
-    setErrors((prev) => ({ ...prev, [fieldId]: "" })); // 🆕 clear error when user types
+    setErrors((prev) => ({ ...prev, [fieldId]: "" })); 
   };
 
   const toBase64 = (file) =>
@@ -26,7 +26,7 @@ export default function FormFillView({ form, onBack }) {
     });
 
   const handleSubmit = async () => {
-    // 🆕 Validation before submitting
+    
     const newErrors = {};
     fields.forEach((q) => {
       if (q.required) {
@@ -44,7 +44,7 @@ export default function FormFillView({ form, onBack }) {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      window.scrollTo({ top: 0, behavior: "smooth" }); // 🆕 scroll to show first error
+      window.scrollTo({ top: 0, behavior: "smooth" }); 
       return;
     }
 
@@ -216,7 +216,7 @@ export default function FormFillView({ form, onBack }) {
                   </div>
                 )}
 
-                {/* 🆕 Show validation error */}
+                
                 {errors[q.questionId] && (
                   <p className="error-text">{errors[q.questionId]}</p>
                 )}
@@ -236,7 +236,7 @@ export default function FormFillView({ form, onBack }) {
         </button>
       </div>
 
-      {/* Clear Modal */}
+      
       {showClearModal && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -266,7 +266,7 @@ export default function FormFillView({ form, onBack }) {
         </div>
       )}
 
-      {/* Submit Modal */}
+      
       {showSubmitModal && (
         <div className="submit-modal-overlay">
           <div className="submit-modal-card">

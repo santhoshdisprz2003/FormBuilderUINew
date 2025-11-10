@@ -1,4 +1,4 @@
-// src/components/FormResponses.jsx
+
 import React, { useEffect, useState } from "react";
 import "../styles/FormResponses.css";
 import SearchIcon from "../assets/SearchIcon.png";
@@ -19,9 +19,9 @@ export default function FormResponses() {
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Pagination
+ 
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -29,7 +29,7 @@ export default function FormResponses() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ Fetch form details (title, questions)
+ 
   useEffect(() => {
     const fetchFormDetails = async () => {
       try {
@@ -42,17 +42,17 @@ export default function FormResponses() {
     if (formId) fetchFormDetails();
   }, [formId]);
 
-  // ✅ Debounced search
+  
   useEffect(() => {
     const delay = setTimeout(() => setPageNumber(1), 500);
     return () => clearTimeout(delay);
   }, [searchTerm]);
 
-  // ✅ Fetch paginated + filtered responses
+  
   useEffect(() => {
     const fetchResponses = async () => {
       try {
-        // setLoading(true);
+        
         setError(null);
         const data = await getAllResponsesForForm(formId, pageNumber, pageSize, searchTerm);
 
@@ -74,14 +74,14 @@ export default function FormResponses() {
         console.error("Error fetching responses:", err);
         setError("Failed to load responses. Please try again later.");
       } finally {
-        // setLoading(false);
+        
       }
     };
 
     if (formId) fetchResponses();
   }, [formId, pageNumber, pageSize, searchTerm]);
 
-  // 🔹 Pagination Handlers
+  
   const handleNext = () => {
     if (pageNumber < totalPages) setPageNumber(pageNumber + 1);
   };
@@ -93,7 +93,7 @@ export default function FormResponses() {
     setPageNumber(1);
   };
 
-  // 🔹 Base64 → Blob for file download
+  
   function b64toBlob(b64Data, contentType = "", sliceSize = 512) {
     if (!b64Data) return null;
     const byteCharacters = atob(b64Data);
@@ -108,7 +108,7 @@ export default function FormResponses() {
     return new Blob(byteArrays, { type: contentType });
   }
 
-  // 🔹 Export to Excel
+  
   const exportToExcel = () => {
     if (!responses || responses.length === 0) {
       alert("No responses available to export.");
@@ -166,7 +166,7 @@ export default function FormResponses() {
   };
 
   if (loading) return <div className="loading">Loading responses...</div>;
-  // if (error) return <div className="error">{error}</div>;
+  
 
   if (responses.length === 0)
     return (
@@ -181,7 +181,7 @@ export default function FormResponses() {
 
   return (
     <div className="responses-container">
-      {/* 🔹 Tabs */}
+    
       <div className="responses-tab-buttons">
         <button
           className={`resp-tab ${activeTab === "summary" ? "active" : ""}`}
@@ -197,7 +197,7 @@ export default function FormResponses() {
         </button>
       </div>
 
-      {/* 🔹 Search + Actions */}
+      
       <div className="responses-header">
         <div className="response-search-box">
           <img src={SearchIcon} alt="search" className="search-icon-inside" />
@@ -221,7 +221,7 @@ export default function FormResponses() {
         </div>
       </div>
 
-      {/* 🔹 Table */}
+      
       <table className="responses-table">
         <thead>
           <tr>
@@ -249,14 +249,14 @@ export default function FormResponses() {
         </tbody>
       </table>
 
-      {/* 🔹 Pagination */}
+      
       <div className="pagination-container">
         <div className="items-info">
           <label className="page">Items per page</label>
           <select className="items-dropdown" value={pageSize} onChange={handlePageSizeChange}>
-            <option value={1}>1</option>
             <option value={10}>10</option>
             <option value={15}>15</option>
+            <option value={50}>50</option>
           </select>
           <span className="items-range">
             {(pageNumber - 1) * pageSize + 1}–
@@ -277,7 +277,7 @@ export default function FormResponses() {
         </div>
       </div>
 
-      {/* 🔹 Response Modal */}
+      
       {selectedResponse && (
         <div className="response-modal-overlay" onClick={() => setSelectedResponse(null)}>
           <div className="response-modal form-view-modal" onClick={(e) => e.stopPropagation()}>
@@ -362,7 +362,7 @@ export default function FormResponses() {
         </div>
       )}
 
-      {/* 🔹 Footer */}
+      
       <div className="form-footer">
         <button className="preview-form-btn">Preview Form</button>
         <button className="save-form-btn" disabled>

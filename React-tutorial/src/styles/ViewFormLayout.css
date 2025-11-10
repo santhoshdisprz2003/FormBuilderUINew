@@ -21,6 +21,14 @@
   font-weight: 600;
   margin-bottom: 12px;
   color: #374151;
+  padding-left: 11px;
+  padding-top: 5px;
+  border:1px solid #e5e7eb;
+  width: 100px;
+  border-radius: 8px;
+  height: 32px;
+  background: #F3F2F3;
+  
 }
 
 .input-field-list {
@@ -94,7 +102,7 @@
   padding: 16px;
 } */
 
-img{
+.input-field .disabled img{
   background-color:2px solid #D8D8D8;
   width: 24px;
   height:24px;

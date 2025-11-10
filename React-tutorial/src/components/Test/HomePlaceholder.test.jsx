@@ -1,183 +1,124 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import HomePlaceholder from "./HomePlaceholder";
+import { render, screen, fireEvent } from '@testing-library/react';
+import HomePlaceholder from '../HomePlaceholder';
 
-describe("HomePlaceholder - Rendering Tests", () => {
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    img: ({ children, ...props }) => <img {...props}>{children}</img>,
+  },
+}));
+
+// Mock the home avatar image
+jest.mock('../../assets/home_avatar.jpg', () => 'home-avatar.jpg');
+
+describe('HomePlaceholder Component', () => {
   const mockOnCreate = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe("Component Rendering", () => {
-    test("renders the component without crashing", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      expect(screen.getByText("Create a Form Template")).toBeInTheDocument();
-    });
+  const renderComponent = (onCreate = mockOnCreate) => {
+    return render(<HomePlaceholder onCreate={onCreate} />);
+  };
 
-    test("renders the home avatar image", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const image = screen.getByAltText("Create Form");
-      expect(image).toBeInTheDocument();
-      expect(image).toHaveClass("home-avatar");
-    });
+  test('renders the component with all elements', () => {
+    renderComponent();
 
-    test("renders the correct heading text", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      expect(screen.getByText("Create a Form Template")).toBeInTheDocument();
-    });
+    // Check if the image is rendered
+    const image = screen.getByAltText('Create Form');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveClass('home-avatar');
 
-    test("renders the correct description text", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      expect(
-        screen.getByText("Create templates that can be used in various other features.")
-      ).toBeInTheDocument();
-    });
+    // Check if the heading is rendered
+    expect(screen.getByText('Create a Form Template')).toBeInTheDocument();
 
-    test("renders the create form button", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const button = screen.getByText("Create Form");
-      expect(button).toBeInTheDocument();
-      expect(button).toHaveClass("create-button");
-    });
+    // Check if the description is rendered
+    expect(screen.getByText('Create templates that can be used in various other features.')).toBeInTheDocument();
+
+    // Check if the button is rendered
+    const button = screen.getByRole('button', { name: /create form/i });
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('create-button');
   });
 
-  describe("Button Interaction", () => {
-    test("calls onCreate when create button is clicked", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const button = screen.getByText("Create Form");
-      
-      fireEvent.click(button);
-      
-      expect(mockOnCreate).toHaveBeenCalledTimes(1);
-    });
+  test('calls onCreate when Create Form button is clicked', () => {
+    renderComponent();
 
-    test("calls onCreate multiple times on multiple clicks", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const button = screen.getByText("Create Form");
-      
-      fireEvent.click(button);
-      fireEvent.click(button);
-      fireEvent.click(button);
-      
-      expect(mockOnCreate).toHaveBeenCalledTimes(3);
-    });
+    const createButton = screen.getByRole('button', { name: /create form/i });
+    fireEvent.click(createButton);
 
-    test("does not call onCreate on initial render", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      expect(mockOnCreate).not.toHaveBeenCalled();
-    });
+    expect(mockOnCreate).toHaveBeenCalledTimes(1);
   });
 
-  describe("CSS Classes", () => {
-    test("container has correct class", () => {
-      const { container } = render(<HomePlaceholder onCreate={mockOnCreate} />);
-      expect(container.querySelector(".container")).toBeInTheDocument();
-    });
+  test('calls onCreate multiple times when button is clicked multiple times', () => {
+    renderComponent();
 
-    test("image has correct class", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const image = screen.getByAltText("Create Form");
-      expect(image).toHaveClass("home-avatar");
-    });
+    const createButton = screen.getByRole('button', { name: /create form/i });
+    
+    fireEvent.click(createButton);
+    fireEvent.click(createButton);
+    fireEvent.click(createButton);
 
-    test("button has correct class", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const button = screen.getByText("Create Form");
-      expect(button).toHaveClass("create-button");
-    });
+    expect(mockOnCreate).toHaveBeenCalledTimes(3);
   });
 
-  describe("Image Properties", () => {
-    test("image has correct src attribute", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const image = screen.getByAltText("Create Form");
-      expect(image).toHaveAttribute("src");
-      expect(image.src).toContain("home_avatar");
-    });
+  test('renders with correct image source', () => {
+    renderComponent();
 
-    test("image has correct alt text", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const image = screen.getByAltText("Create Form");
-      expect(image).toHaveAttribute("alt", "Create Form");
-    });
+    const image = screen.getByAltText('Create Form');
+    expect(image).toHaveAttribute('src', 'home-avatar.jpg');
   });
 
-  describe("Text Content", () => {
-    test("heading is rendered as h2 element", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const heading = screen.getByText("Create a Form Template");
-      expect(heading.tagName).toBe("H2");
-    });
+  test('renders container with correct class', () => {
+    const { container } = renderComponent();
 
-    test("description is rendered as p element", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const description = screen.getByText(
-        "Create templates that can be used in various other features."
-      );
-      expect(description.tagName).toBe("P");
-    });
+    const containerDiv = container.querySelector('.container');
+    expect(containerDiv).toBeInTheDocument();
   });
 
-  describe("Edge Cases", () => {
-    test("renders correctly when onCreate is undefined", () => {
-      render(<HomePlaceholder onCreate={undefined} />);
-      expect(screen.getByText("Create a Form Template")).toBeInTheDocument();
-    });
+  test('button has correct text content', () => {
+    renderComponent();
 
-    test("renders correctly when onCreate is null", () => {
-      render(<HomePlaceholder onCreate={null} />);
-      expect(screen.getByText("Create a Form Template")).toBeInTheDocument();
-    });
-
-    test("button click does not throw error when onCreate is undefined", () => {
-      render(<HomePlaceholder onCreate={undefined} />);
-      const button = screen.getByText("Create Form");
-      
-      expect(() => fireEvent.click(button)).not.toThrow();
-    });
+    const button = screen.getByRole('button', { name: /create form/i });
+    expect(button).toHaveTextContent('Create Form');
   });
 
-  describe("Component Structure", () => {
-    test("renders all elements in correct order", () => {
-      const { container } = render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const elements = container.querySelectorAll(".container > *");
-      
-      expect(elements[0].tagName).toBe("IMG");
-      expect(elements[1].tagName).toBe("H2");
-      expect(elements[2].tagName).toBe("P");
-      expect(elements[3].tagName).toBe("BUTTON");
-    });
+  test('heading has correct text', () => {
+    renderComponent();
 
-    test("container wraps all child elements", () => {
-      const { container } = render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const containerDiv = container.querySelector(".container");
-      
-      expect(containerDiv.children.length).toBe(4);
-    });
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading).toHaveTextContent('Create a Form Template');
   });
 
-  describe("Accessibility", () => {
-    test("button is accessible and clickable", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const button = screen.getByRole("button", { name: "Create Form" });
-      
-      expect(button).toBeInTheDocument();
-      expect(button).toBeEnabled();
-    });
+  test('description paragraph is present', () => {
+    renderComponent();
 
-    test("image has descriptive alt text", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const image = screen.getByRole("img");
-      
-      expect(image).toHaveAttribute("alt", "Create Form");
-    });
+    const description = screen.getByText(/Create templates that can be used in various other features/i);
+    expect(description.tagName).toBe('P');
+  });
 
-    test("heading is properly structured", () => {
-      render(<HomePlaceholder onCreate={mockOnCreate} />);
-      const heading = screen.getByRole("heading", { level: 2 });
-      
-      expect(heading).toHaveTextContent("Create a Form Template");
-    });
+  test('does not call onCreate on initial render', () => {
+    renderComponent();
+
+    expect(mockOnCreate).not.toHaveBeenCalled();
+  });
+
+  test('works without onCreate prop', () => {
+    // This should not throw an error
+    expect(() => {
+      render(<HomePlaceholder />);
+    }).not.toThrow();
+  });
+
+  test('handles undefined onCreate gracefully', () => {
+    render(<HomePlaceholder onCreate={undefined} />);
+
+    const createButton = screen.getByRole('button', { name: /create form/i });
+    
+    // Should not throw error when clicked
+    expect(() => {
+      fireEvent.click(createButton);
+    }).not.toThrow();
   });
 });

@@ -1,18 +1,14 @@
 import React, { useState } from "react";
 import "../styles/FormList.css";
 import { useNavigate } from "react-router-dom";
-import SearchIcon from "../assets/SearchIcon.png";
+
 
 
 export default function FormList({
   forms,
-  search,
-  setSearch,
   openMenuId,
   setOpenMenuId,
-  handleCreateForm,
   handleDelete,
-  loading,
 }) {
   const [deletePopup, setDeletePopup] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -20,11 +16,11 @@ export default function FormList({
   const [enabledForms, setEnabledForms] = useState({});
 
 
-  // ✅ Filter forms by title
-  const filteredForms = forms; // API already returns filtered data
+  
+  const filteredForms = forms; 
 
 
-  // ✅ Confirm deletion
+  
   const confirmDelete = async (id) => {
     try {
       setDeleting(true);
@@ -37,14 +33,14 @@ export default function FormList({
     }
   };
 
-  // ✅ Navigate to the view form page
+  
   const handleViewForm = (id) => {
     console.log("Navigating to View Form with ID:", id);
 
     navigate(`/form-builder/view/${id}`);
   };
 
-  // ✅ Format date
+  
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -55,7 +51,7 @@ export default function FormList({
     });
   };
 
-  // ✅ Status text and styles
+  
   const getStatusText = (status) =>
     status === 1 || status === "1" ? "Published" : "Draft";
 
@@ -66,36 +62,17 @@ export default function FormList({
 
   return (
     <div className="container">
-      <div className="header">
-        <p>Form List</p>
-        <div className="search-container">
-          <div className="search-input-wrapper">
-            <img src={SearchIcon} alt="Search" className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="search-input"
-            />
-          </div>
+      
 
-          <button className="create-btn" onClick={handleCreateForm}>
-            Create Form
-          </button>
-        </div>
-
-      </div>
-
-      {/* ===== CARD GRID ===== */}
+      
       <div className="card-grid">
         {filteredForms.map((form) => {
-          // ✅ Debug log for verifying render
+          
           console.log("Rendering card for form:", form.id, form.config?.title);
 
           return (
             <div key={form.id} className="card">
-              {/* ===== CARD HEADER ===== */}
+              
               <div className="card-header">
                 <div className="card-title-wrapper">
                   <h3 className="card-title">
@@ -103,7 +80,7 @@ export default function FormList({
                   </h3>
                 </div>
 
-                {/* ⋮ Menu */}
+                
                 <div className="menu-container">
                   <button
                     className="menu-btn"
@@ -142,7 +119,7 @@ export default function FormList({
                 </div>
               </div>
 
-              {/* ===== CARD META ===== */}
+              
               <div className="card-meta">
                 {isPublished(form?.status) ? (
                   <>
@@ -165,7 +142,7 @@ export default function FormList({
                 )}
               </div>
 
-              {/* ===== CARD FOOTER ===== */}
+             
               <div className="card-footer">
                 <span className={`status-btn ${getStatusClass(form?.status)}`}>
                   {getStatusText(form?.status)}
@@ -206,7 +183,7 @@ export default function FormList({
         })}
       </div>
 
-      {/* ===== DELETE POPUP ===== */}
+      
       {deletePopup && (
         <div className="popup-overlay">
           <div className="popup">

@@ -3,18 +3,21 @@
   min-height: 100vh;
   background-color: #f9fafb;
   font-family: Arial, sans-serif;
+  padding-top: 1px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
 .header p {
   font-size: 1rem;
   font-weight: 600;
+  margin-left: 36px;
 }
 
 .search-container {
@@ -44,7 +47,8 @@
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  width:125px;
+  width: 125px;
+  margin-right: 41px;
 }
 
 .create-btn:hover {
@@ -53,9 +57,12 @@
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* ✅ Exactly 3 cards per row */
-  gap: 2rem; /* ✅ Adjust spacing between cards */
-  justify-items: center; /* ✅ Center cards within grid columns */
+  grid-template-columns: repeat(3, 1fr);
+  /* ✅ Exactly 3 cards per row */
+  gap: 2rem;
+  /* ✅ Adjust spacing between cards */
+  justify-items: center;
+  /* ✅ Center cards within grid columns */
   align-items: start;
 }
 
@@ -71,7 +78,7 @@
   min-height: 120px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s;
-  width:450px;
+  width: 450px;
 }
 
 .card:hover {
@@ -144,29 +151,23 @@
 
 
 
-/* Footer buttons */
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  align-items: center;
-}
+
 
 
 
 .status-btn.published {
   color: #3AB876;
-  background-color:#80D8BC40;
-  border:1px solid #3AB876;
+  background-color: #80D8BC40;
+  border: 1px solid #3AB876;
   width: 85px;
   height: 32px;
 }
 
 .status-btn.draft {
-  color: #F6A609 ;
+  color: #F6A609;
   background-color: #FEF4E1;
-  border:1px solid #F6A609;
-   width: 85px;
+  border: 1px solid #F6A609;
+  width: 85px;
   height: 32px;
 }
 
@@ -174,20 +175,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left:63px;
+  margin-left: 63px;
 }
 
 .viewresponse-btn {
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
-  background-color:#5D38DF;
-  color: white; 
+  background-color: #5D38DF;
+  color: white;
   font-size: 0.875rem;
   border: none;
   cursor: pointer;
-  width:133px;
-  height:40px;
-  border: 1px solid #5D38DF ;
+  width: 133px;
+  height: 40px;
+  border: 1px solid #5D38DF;
 }
 
 .viewresponse-btn:hover {
@@ -225,10 +226,12 @@
   overflow: hidden;
   animation: fadeIn 0.25s ease-in-out;
 }
+
 .popup-header {
   background-color: #f5f5f5;
   padding: 0.8rem 1rem;
 }
+
 .popup-header h3 {
   margin: 0;
   font-size: 1.1rem;
@@ -275,7 +278,7 @@
 }
 
 .cancel-btn {
-  color:#5D38DF;
+  color: #5D38DF;
 }
 
 .confirm-delete-btn {
@@ -284,7 +287,8 @@
 }
 
 .confirm-delete-btn:hover {
-  background-color: #5D38DF;;
+  background-color: #5D38DF;
+  ;
 }
 
 
@@ -293,10 +297,10 @@
 .card-meta {
   margin-top: 15px;
   display: flex;
- border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
   flex-direction: column;
-  gap: 4px;
-   padding-bottom: 8px;
+  gap: 14px;
+  padding-bottom: 16px;
 }
 
 .meta-text {
@@ -304,7 +308,7 @@
   color: #666;
   margin: 0;
   text-align: left;
-  padding-left:10px;
+  padding-left: 10px;
 }
 
 .meta-text strong {
@@ -317,6 +321,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  padding: 12px;
 }
 
 .status-btn {
@@ -337,4 +342,3 @@
   background-color: #d1fae5;
   color: #065f46;
 }
-

@@ -11,9 +11,7 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("FormList Component - Rendering Tests", () => {
-  const mockSetSearch = jest.fn();
   const mockSetOpenMenuId = jest.fn();
-  const mockHandleCreateForm = jest.fn();
   const mockHandleDelete = jest.fn();
 
   const defaultForms = [
@@ -41,13 +39,9 @@ describe("FormList Component - Rendering Tests", () => {
 
   const defaultProps = {
     forms: defaultForms,
-    search: "",
-    setSearch: mockSetSearch,
     openMenuId: null,
     setOpenMenuId: mockSetOpenMenuId,
-    handleCreateForm: mockHandleCreateForm,
     handleDelete: mockHandleDelete,
-    loading: false,
   };
 
   beforeEach(() => {
@@ -59,41 +53,13 @@ describe("FormList Component - Rendering Tests", () => {
 
   test("renders component", () => {
     render(<FormList {...defaultProps} />);
-    expect(screen.getByText("Form List")).toBeInTheDocument();
-  });
-
-  test("renders Form List header", () => {
-    render(<FormList {...defaultProps} />);
-    expect(screen.getByText("Form List")).toBeInTheDocument();
-  });
-
-  test("renders search input", () => {
-    render(<FormList {...defaultProps} />);
-    const searchInput = screen.getByPlaceholderText("Search forms");
-    expect(searchInput).toBeInTheDocument();
-  });
-
-  test("renders Create Form button", () => {
-    render(<FormList {...defaultProps} />);
-    expect(screen.getByText("Create Form")).toBeInTheDocument();
+    expect(screen.getByText("Test Form 1")).toBeInTheDocument();
   });
 
   test("renders container with correct class", () => {
     const { container } = render(<FormList {...defaultProps} />);
     const containerDiv = container.querySelector(".container");
     expect(containerDiv).toBeInTheDocument();
-  });
-
-  test("renders header with correct class", () => {
-    const { container } = render(<FormList {...defaultProps} />);
-    const header = container.querySelector(".header");
-    expect(header).toBeInTheDocument();
-  });
-
-  test("renders search container with correct class", () => {
-    const { container } = render(<FormList {...defaultProps} />);
-    const searchContainer = container.querySelector(".search-container");
-    expect(searchContainer).toBeInTheDocument();
   });
 
   test("renders card grid", () => {
@@ -156,26 +122,6 @@ describe("FormList Component - Rendering Tests", () => {
     expect(viewResponseButtons.length).toBe(2);
   });
 
-  test("search input has correct value", () => {
-    render(<FormList {...defaultProps} />);
-    const searchInput = screen.getByPlaceholderText("Search forms");
-    expect(searchInput.value).toBe("");
-  });
-
-  test("search input updates value", () => {
-    render(<FormList {...defaultProps} />);
-    const searchInput = screen.getByPlaceholderText("Search forms");
-    fireEvent.change(searchInput, { target: { value: "test" } });
-    expect(mockSetSearch).toHaveBeenCalledWith("test");
-  });
-
-  test("calls handleCreateForm when Create Form button is clicked", () => {
-    render(<FormList {...defaultProps} />);
-    const createButton = screen.getByText("Create Form");
-    fireEvent.click(createButton);
-    expect(mockHandleCreateForm).toHaveBeenCalledTimes(1);
-  });
-
   test("opens menu when menu button is clicked", () => {
     render(<FormList {...defaultProps} />);
     const menuButtons = screen.getAllByText("⋮");
@@ -214,6 +160,22 @@ describe("FormList Component - Rendering Tests", () => {
     expect(screen.queryByText("Edit Form")).not.toBeInTheDocument();
     expect(screen.queryByText("View Form")).not.toBeInTheDocument();
     expect(screen.queryByText("Delete")).not.toBeInTheDocument();
+  });
+
+  test("navigates to view form when View Form button is clicked", () => {
+    const props = { ...defaultProps, openMenuId: "form-2" };
+    render(<FormList {...props} />);
+    const viewButton = screen.getByText("View Form");
+    fireEvent.click(viewButton);
+    expect(mockNavigate).toHaveBeenCalledWith("/form-builder/view/form-2");
+  });
+
+  test("navigates to edit form when Edit Form button is clicked", () => {
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const editButton = screen.getByText("Edit Form");
+    fireEvent.click(editButton);
+    expect(mockNavigate).toHaveBeenCalledWith("/form-builder/edit/form-1");
   });
 
   test("opens delete popup when Delete button is clicked", () => {
@@ -270,33 +232,6 @@ describe("FormList Component - Rendering Tests", () => {
     await waitFor(() => {
       expect(mockHandleDelete).toHaveBeenCalledWith("form-1");
     });
-  });
-
-  test("filters forms by search term", () => {
-    const props = { ...defaultProps, search: "Form 1" };
-    render(<FormList {...props} />);
-    expect(screen.getByText("Test Form 1")).toBeInTheDocument();
-    expect(screen.queryByText("Test Form 2")).not.toBeInTheDocument();
-  });
-
-  test("filters forms case-insensitively", () => {
-    const props = { ...defaultProps, search: "form 1" };
-    render(<FormList {...props} />);
-    expect(screen.getByText("Test Form 1")).toBeInTheDocument();
-    expect(screen.queryByText("Test Form 2")).not.toBeInTheDocument();
-  });
-
-  test("renders all forms when search is empty", () => {
-    render(<FormList {...defaultProps} />);
-    expect(screen.getByText("Test Form 1")).toBeInTheDocument();
-    expect(screen.getByText("Test Form 2")).toBeInTheDocument();
-  });
-
-  test("renders no forms when search matches nothing", () => {
-    const props = { ...defaultProps, search: "NonExistent" };
-    render(<FormList {...props} />);
-    expect(screen.queryByText("Test Form 1")).not.toBeInTheDocument();
-    expect(screen.queryByText("Test Form 2")).not.toBeInTheDocument();
   });
 
   test("renders Untitled Form when title is missing", () => {
@@ -526,18 +461,6 @@ describe("FormList Component - Rendering Tests", () => {
     expect(screen.getByText("Draft")).toBeInTheDocument();
   });
 
-  test("renders search input with correct class", () => {
-    const { container } = render(<FormList {...defaultProps} />);
-    const searchInput = container.querySelector(".search-input");
-    expect(searchInput).toBeInTheDocument();
-  });
-
-  test("renders create button with correct class", () => {
-    const { container } = render(<FormList {...defaultProps} />);
-    const createBtn = container.querySelector(".create-btn");
-    expect(createBtn).toBeInTheDocument();
-  });
-
   test("renders view button with correct class", () => {
     const props = { ...defaultProps, openMenuId: "form-2" };
     const { container } = render(<FormList {...props} />);
@@ -590,28 +513,6 @@ describe("FormList Component - Rendering Tests", () => {
     expect(menu).toBeInTheDocument();
   });
 
-  test("search filters partial matches", () => {
-    const props = { ...defaultProps, search: "Form" };
-    render(<FormList {...props} />);
-    expect(screen.getByText("Test Form 1")).toBeInTheDocument();
-    expect(screen.getByText("Test Form 2")).toBeInTheDocument();
-  });
-
-  test("search filters with special characters", () => {
-    const formsWithSpecialChars = [
-      {
-        id: "form-1",
-        config: { title: "Form & Special <Characters>" },
-        status: 0,
-        createdBy: "admin",
-        createdAt: "2024-01-15T10:00:00Z",
-      },
-    ];
-    const props = { ...defaultProps, forms: formsWithSpecialChars, search: "Special" };
-    render(<FormList {...props} />);
-    expect(screen.getByText("Form & Special <Characters>")).toBeInTheDocument();
-  });
-
   test("handles forms with null config", () => {
     const formsWithNullConfig = [
       {
@@ -649,4 +550,401 @@ describe("FormList Component - Rendering Tests", () => {
     const hr = container.querySelector("hr");
     expect(hr).toBeInTheDocument();
   });
+
+  test("logs console message when rendering card", () => {
+    render(<FormList {...defaultProps} />);
+    expect(console.log).toHaveBeenCalledWith("Rendering card for form:", "form-1", "Test Form 1");
+    expect(console.log).toHaveBeenCalledWith("Rendering card for form:", "form-2", "Test Form 2");
+  });
+
+  test("logs console message when navigating to view form", () => {
+    const props = { ...defaultProps, openMenuId: "form-2" };
+    render(<FormList {...props} />);
+    const viewButton = screen.getByText("View Form");
+    fireEvent.click(viewButton);
+    expect(console.log).toHaveBeenCalledWith("Navigating to View Form with ID:", "form-2");
+  });
+
+  test("handles delete error and logs to console", async () => {
+    const error = new Error("Delete failed");
+    mockHandleDelete.mockRejectedValue(error);
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    const confirmButton = screen.getByText("Yes, Delete");
+    fireEvent.click(confirmButton);
+    
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith("Delete failed:", error);
+    });
+  });
+
+  test("renders toggle wrapper with correct class", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const toggleWrappers = container.querySelectorAll(".toggle-wrapper");
+    expect(toggleWrappers.length).toBe(2);
+  });
+
+  test("renders toggle label", () => {
+    render(<FormList {...defaultProps} />);
+    const toggleLabels = screen.getAllByText("Enabled");
+    expect(toggleLabels.length).toBe(2);
+  });
+
+  test("renders toggle switch", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const switches = container.querySelectorAll(".switch");
+    expect(switches.length).toBe(2);
+  });
+
+  test("renders toggle slider", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const sliders = container.querySelectorAll(".slider.round");
+    expect(sliders.length).toBe(2);
+  });
+
+  test("toggle checkbox is unchecked by default", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      expect(checkbox.checked).toBe(false);
+    });
+  });
+
+  test("toggles enabled state when checkbox is clicked", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    const firstCheckbox = checkboxes[0];
+    
+    fireEvent.click(firstCheckbox);
+    expect(firstCheckbox.checked).toBe(true);
+    
+    fireEvent.click(firstCheckbox);
+    expect(firstCheckbox.checked).toBe(false);
+  });
+
+  test("each form has independent toggle state", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    
+    fireEvent.click(checkboxes[0]);
+    expect(checkboxes[0].checked).toBe(true);
+    expect(checkboxes[1].checked).toBe(false);
+    
+    fireEvent.click(checkboxes[1]);
+    expect(checkboxes[0].checked).toBe(true);
+    expect(checkboxes[1].checked).toBe(true);
+  });
+
+  test("View Responses button is disabled for draft forms", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const viewResponseBtns = container.querySelectorAll(".viewresponse-btn");
+    const draftFormBtn = viewResponseBtns[0]; // form-1 is draft
+    expect(draftFormBtn).toHaveClass("disabled");
+    expect(draftFormBtn).toBeDisabled();
+  });
+
+  test("View Responses button is enabled for published forms", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const viewResponseBtns = container.querySelectorAll(".viewresponse-btn");
+    const publishedFormBtn = viewResponseBtns[1]; // form-2 is published
+    expect(publishedFormBtn).not.toHaveClass("disabled");
+    expect(publishedFormBtn).not.toBeDisabled();
+  });
+
+  test("navigates to responses tab when View Responses is clicked for published form", () => {
+    render(<FormList {...defaultProps} />);
+    const viewResponseBtns = screen.getAllByText("View Responses");
+    const publishedFormBtn = viewResponseBtns[1]; // form-2 is published
+    
+    fireEvent.click(publishedFormBtn);
+    expect(mockNavigate).toHaveBeenCalledWith("/form-builder/view/form-2", {
+      state: { openTab: "responses" },
+    });
+  });
+
+  test("does not navigate when View Responses is clicked for draft form", () => {
+    render(<FormList {...defaultProps} />);
+    const viewResponseBtns = screen.getAllByText("View Responses");
+    const draftFormBtn = viewResponseBtns[0]; // form-1 is draft
+    
+    fireEvent.click(draftFormBtn);
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  test("renders default createdBy as admin when not provided", () => {
+    const formsWithoutCreatedBy = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 0,
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithoutCreatedBy };
+    render(<FormList {...props} />);
+    expect(screen.getByText(/Created by: admin/)).toBeInTheDocument();
+  });
+
+  test("renders default publishedBy as admin when not provided", () => {
+    const formsWithoutPublishedBy = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 1,
+        publishedAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithoutPublishedBy };
+    render(<FormList {...props} />);
+    expect(screen.getByText(/Published by: admin/)).toBeInTheDocument();
+  });
+
+  test("disables Cancel button during deletion", async () => {
+    mockHandleDelete.mockImplementation(() => new Promise(() => {}));
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    const confirmButton = screen.getByText("Yes, Delete");
+    fireEvent.click(confirmButton);
+    
+    await waitFor(() => {
+      const cancelButton = screen.getByText("Cancel");
+      expect(cancelButton).toBeDisabled();
+    });
+  });
+
+  test("disables Yes, Delete button during deletion", async () => {
+    mockHandleDelete.mockImplementation(() => new Promise(() => {}));
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    const confirmButton = screen.getByText("Yes, Delete");
+    fireEvent.click(confirmButton);
+    
+    await waitFor(() => {
+      const deletingButton = screen.getByText("Deleting...");
+      expect(deletingButton).toBeDisabled();
+    });
+  });
+
+    test("handles undefined config title", () => {
+    const formsWithUndefinedTitle = [
+      {
+        id: "form-1",
+        config: { title: undefined },
+        status: 0,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithUndefinedTitle };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Untitled Form")).toBeInTheDocument();
+  });
+
+  test("handles empty string as title", () => {
+    const formsWithEmptyTitle = [
+      {
+        id: "form-1",
+        config: { title: "" },
+        status: 0,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithEmptyTitle };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Untitled Form")).toBeInTheDocument();
+  });
+
+  test("handles undefined config", () => {
+    const formsWithUndefinedConfig = [
+      {
+        id: "form-1",
+        config: undefined,
+        status: 0,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithUndefinedConfig };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Untitled Form")).toBeInTheDocument();
+  });
+
+  test("handles invalid date string", () => {
+    const formsWithInvalidDate = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 0,
+        createdBy: "admin",
+        createdAt: "invalid-date",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithInvalidDate };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Test Form")).toBeInTheDocument();
+  });
+
+  test("handles empty string as date", () => {
+    const formsWithEmptyDate = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 0,
+        createdBy: "admin",
+        createdAt: "",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithEmptyDate };
+    render(<FormList {...props} />);
+    expect(screen.getByText(/N\/A/)).toBeInTheDocument();
+  });
+
+  test("handles undefined date", () => {
+    const formsWithUndefinedDate = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 0,
+        createdBy: "admin",
+        createdAt: undefined,
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithUndefinedDate };
+    render(<FormList {...props} />);
+    expect(screen.getByText(/N\/A/)).toBeInTheDocument();
+  });
+
+  test("maintains toggle state after re-render", () => {
+    const { container, rerender } = render(<FormList {...defaultProps} />);
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    
+    fireEvent.click(checkboxes[0]);
+    expect(checkboxes[0].checked).toBe(true);
+    
+    rerender(<FormList {...defaultProps} />);
+    const updatedCheckboxes = container.querySelectorAll('input[type="checkbox"]');
+    expect(updatedCheckboxes[0].checked).toBe(true);
+  });
+
+  test("handles multiple menu opens and closes", () => {
+    render(<FormList {...defaultProps} />);
+    const menuButtons = screen.getAllByText("⋮");
+    
+    fireEvent.click(menuButtons[0]);
+    expect(mockSetOpenMenuId).toHaveBeenCalledWith("form-1");
+    
+    fireEvent.click(menuButtons[1]);
+    expect(mockSetOpenMenuId).toHaveBeenCalledWith("form-2");
+    
+    mockSetOpenMenuId.mockClear();
+    const props = { ...defaultProps, openMenuId: "form-2" };
+    render(<FormList {...props} />);
+    const updatedMenuButtons = screen.getAllByText("⋮");
+    fireEvent.click(updatedMenuButtons[1]);
+    expect(mockSetOpenMenuId).toHaveBeenCalledWith(null);
+  });
+
+  test("renders correct number of cards for filtered forms", () => {
+    const { container } = render(<FormList {...defaultProps} />);
+    const cards = container.querySelectorAll(".card");
+    expect(cards.length).toBe(2);
+  });
+
+  test("handles status as other values (not 0 or 1)", () => {
+    const formsWithOtherStatus = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: 2,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithOtherStatus };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Draft")).toBeInTheDocument();
+  });
+
+  test("handles status as null", () => {
+    const formsWithNullStatus = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: null,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithNullStatus };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Draft")).toBeInTheDocument();
+  });
+
+  test("handles status as undefined", () => {
+    const formsWithUndefinedStatus = [
+      {
+        id: "form-1",
+        config: { title: "Test Form" },
+        status: undefined,
+        createdBy: "admin",
+        createdAt: "2024-01-15T10:00:00Z",
+      },
+    ];
+    const props = { ...defaultProps, forms: formsWithUndefinedStatus };
+    render(<FormList {...props} />);
+    expect(screen.getByText("Draft")).toBeInTheDocument();
+  });
+
+  test("does not show delete popup by default", () => {
+    render(<FormList {...defaultProps} />);
+    expect(screen.queryByText("Delete Form")).not.toBeInTheDocument();
+  });
+
+  test("shows only one delete popup at a time", () => {
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    const { container } = render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    
+    const popups = container.querySelectorAll(".popup");
+    expect(popups.length).toBe(1);
+  });
+
+  test("re-enables buttons after deletion completes", async () => {
+    mockHandleDelete.mockResolvedValue();
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    const confirmButton = screen.getByText("Yes, Delete");
+    fireEvent.click(confirmButton);
+    
+    await waitFor(() => {
+      expect(screen.queryByText("Delete Form")).not.toBeInTheDocument();
+    });
+  });
+
+  test("keeps popup open after deletion error", async () => {
+    const error = new Error("Delete failed");
+    mockHandleDelete.mockRejectedValue(error);
+    const props = { ...defaultProps, openMenuId: "form-1" };
+    render(<FormList {...props} />);
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+    const confirmButton = screen.getByText("Yes, Delete");
+    fireEvent.click(confirmButton);
+    
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith("Delete failed:", error);
+      expect(screen.getByText("Yes, Delete")).toBeInTheDocument();
+    });
+  });
 });
+

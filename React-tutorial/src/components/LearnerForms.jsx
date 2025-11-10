@@ -19,15 +19,13 @@ export default function LearnerForms() {
 
   
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     const delay = setTimeout(async () => {
       try {
-        // setLoading(true);
-
         if (activeTab === "selfService") {
           const response = await getAllForms(0, 50, search);
           const formsData = response?.data || [];
@@ -36,7 +34,7 @@ export default function LearnerForms() {
           );
           setForms(published);
         } else if (activeTab === "mySubmissions") {
-          // 🔹 Use pagination parameters here
+          
           const data = await getAllResponsesByLearner(search, pageNumber, pageSize);
 
           const totalPagesCalc = Math.ceil((data.totalCount || 0) / (data.pageSize || pageSize));
@@ -60,12 +58,12 @@ export default function LearnerForms() {
       } finally {
        
       }
-    }, 400); // debounce 400ms
+    }, 400); 
 
     return () => clearTimeout(delay);
-  }, [search, activeTab, pageNumber, pageSize]); // 🔹 included pagination deps
+  }, [search, activeTab, pageNumber, pageSize]); 
 
-  // 🔹 Pagination handlers
+  
   const handleNext = () => {
     if (pageNumber < totalPages) setPageNumber(pageNumber + 1);
   };
@@ -77,7 +75,7 @@ export default function LearnerForms() {
     setPageNumber(1);
   };
 
-  // ✅ Convert base64 → blob for downloads
+  
   const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
     if (!b64Data) return null;
     const byteCharacters = atob(b64Data);
@@ -113,7 +111,7 @@ export default function LearnerForms() {
 
   return (
     <div className="learner-container">
-      {/* Tabs */}
+      
       <div className="learner-tabs">
         <button
           className={`tab ${activeTab === "selfService" ? "active" : ""}`}
@@ -140,7 +138,7 @@ export default function LearnerForms() {
         />
       </div>
 
-      {/* SELF-SERVICE TAB */}
+      
       {activeTab === "selfService" && (
         <div className="learner-forms-grid">
           {forms.length === 0 ? (
@@ -174,7 +172,7 @@ export default function LearnerForms() {
         </div>
       )}
 
-      {/* MY SUBMISSIONS */}
+      
       {activeTab === "mySubmissions" && (
         <div className="submissions-container">
           <table className="submissions-table">
@@ -213,7 +211,7 @@ export default function LearnerForms() {
             </tbody>
           </table>
 
-          {/* 🔹 Pagination Section */}
+          
           {totalCount > 0 && (
             <div className="pagination-container">
               <div className="items-info">
@@ -223,9 +221,9 @@ export default function LearnerForms() {
                   value={pageSize}
                   onChange={handlePageSizeChange}
                 >
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
                   <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={50}>50</option>
                 </select>
                 <span className="items-range">
                   {(pageNumber - 1) * pageSize + 1}–
@@ -261,7 +259,7 @@ export default function LearnerForms() {
         </div>
       )}
 
-      {/* Response Modal */}
+      
       {selectedResponse && selectedFormDetails && (
         <div
           className="response-modal-overlay"

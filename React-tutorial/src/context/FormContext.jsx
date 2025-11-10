@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState } from "react";
 
-// 1️⃣ Create the context
+
 export const FormContext = createContext();
 
-// 2️⃣ Create the provider
+
 export function FormProvider({ children }) {
-  // --- Form configuration state ---
+  
   const [formId, setFormId] = useState(null);
   const [formName, setFormName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
 
   
   const [fields, setFields] = useState([]);
@@ -42,6 +43,8 @@ export function FormProvider({ children }) {
         setShowPreview,
         activeTab,
         setActiveTab,
+        readOnly,
+        setReadOnly
       }}
     >
       {children}

@@ -1,709 +1,549 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import LearnerForms from "./LearnerForms";
-import { getAllForms, getFormById } from "../api/formService";
-import { getAllResponsesByLearner } from "../api/responses";
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import LearnerForms from '../LearnerForms';
+import { getAllForms, getFormById } from '../../api/formService';
+import { getAllResponsesByLearner } from '../../api/responses';
 
-jest.mock("../api/formService");
-jest.mock("../api/responses");
+// Mock the API modules
+jest.mock('../../api/formService');
+jest.mock('../../api/responses');
 
-const mockPublishedForms = [
-  {
-    id: "form1",
-    status: 1,
-    publishedAt: "2024-01-15T10:30:00Z",
-    config: {
-      title: "Employee Feedback Form",
-      description: "Share your feedback about the workplace",
-    },
-  },
-  {
-    id: "form2",
-    status: "1",
-    publishedAt: "2024-01-20T14:20:00Z",
-    config: {
-      title: "Training Assessment",
-      description: "Evaluate your training experience",
-    },
-  },
-];
+// Mock child components
+jest.mock('../FormFillView', () => {
+  return function MockFormFillView({ form, onBack }) {
+    return (
+      <div data-testid="form-fill-view">
+        <h1>{form.config?.title}</h1>
+        <button onClick={onBack}>Back</button>
+      </div>
+    );
+  };
+});
 
-const mockDraftForm = {
-  id: "form3",
-  status: 0,
-  config: {
-    title: "Draft Form",
-    description: "This is a draft",
-  },
-};
+jest.mock('../SearchBar', () => {
+  return function MockSearchBar({ search, setSearch, onFilterClick }) {
+    return (
+      <div data-testid="search-bar">
+        <input
+          type="text"
+          placeholder="Search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button onClick={onFilterClick}>Filter</button>
+      </div>
+    );
+  };
+});
 
-const mockResponses = [
-  {
-    responseId: "resp1",
-    formId: "form1",
-    formTitle: "Employee Feedback Form",
-    submittedAt: "2024-01-16T10:30:00Z",
-    answers: [
-      { questionId: "q1", answerText: "Great workplace" },
-      { questionId: "q2", answerText: '["opt1"]' },
-    ],
-    files: [],
-  },
-  {
-    responseId: "resp2",
-    formId: "form2",
-    formTitle: "Training Assessment",
-    submittedAt: "2024-01-21T14:20:00Z",
-    answers: [
-      { questionId: "q1", answerText: "Excellent training" },
-    ],
-    files: [],
-  },
-];
+// Mock images
+jest.mock('../../assets/ViewResponsesIcon.png', () => 'view-responses-icon.png');
 
-const mockFormDetails = {
-  id: "form1",
-  config: {
-    title: "Employee Feedback Form",
-    description: "Share your feedback",
-  },
-  layout: {
-    fields: [
+describe('LearnerForms Component', () => {
+  const mockPublishedForms = {
+    data: [
       {
-        questionId: "q1",
-        label: "How do you rate the workplace?",
-        type: "text",
-        description: "Please provide details",
-        descriptionEnabled: true,
+        id: 'form1',
+        status: 1,
+        publishedAt: '2024-01-15T10:30:00Z',
+        config: {
+          title: 'Published Form 1',
+          description: 'This is a published form',
+        },
       },
       {
-        questionId: "q2",
-        label: "Select your department",
-        type: "drop-down",
-        options: [
-          { optionId: "opt1", value: "Engineering" },
-          { optionId: "opt2", value: "Marketing" },
+        id: 'form2',
+        status: '1',
+        publishedAt: '2024-01-20T14:20:00Z',
+        config: {
+          title: 'Published Form 2',
+          description: 'Another published form',
+        },
+      },
+      {
+        id: 'form3',
+        status: 0,
+        config: {
+          title: 'Draft Form',
+          description: 'This is a draft',
+        },
+      },
+    ],
+  };
+
+  const mockResponses = {
+    items: [
+      {
+        responseId: 'resp1',
+        formId: 'form1',
+        formTitle: 'Published Form 1',
+        submittedAt: '2024-01-16T10:30:00Z',
+        answers: [
+          { questionId: 'q1', answerText: 'Answer 1' },
         ],
+        files: [],
       },
       {
-        questionId: "q3",
-        label: "Upload document",
-        type: "file-upload",
+        responseId: 'resp2',
+        formId: 'form2',
+        formTitle: 'Published Form 2',
+        submittedAt: '2024-01-17T14:20:00Z',
+        answers: [
+          { questionId: 'q2', answerText: 'Answer 2' },
+        ],
+        files: [],
       },
     ],
-  },
-};
+    totalCount: 2,
+    pageSize: 1,
+  };
 
-const renderComponent = () => {
-  return render(
-    <BrowserRouter>
-      <LearnerForms />
-    </BrowserRouter>
-  );
-};
+  const mockFormDetails = {
+    config: {
+      title: 'Published Form 1',
+      description: 'Form description',
+    },
+    layout: {
+      fields: [
+        {
+          questionId: 'q1',
+          label: 'Question 1',
+          description: 'First question',
+          type: 'text',
+        },
+        {
+          questionId: 'q2',
+          label: 'Question 2',
+          type: 'drop-down',
+          options: [
+            { optionId: 'opt1', value: 'Option 1' },
+            { optionId: 'opt2', value: 'Option 2' },
+          ],
+        },
+      ],
+    },
+  };
 
-describe("LearnerForms - Rendering Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getAllForms.mockResolvedValue(mockPublishedForms);
+    getAllResponsesByLearner.mockResolvedValue(mockResponses);
+    getFormById.mockResolvedValue(mockFormDetails);
+    
+    // Mock URL.createObjectURL
+    global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+    global.URL.revokeObjectURL = jest.fn();
   });
 
-  describe("Loading and Error States", () => {
-    test("renders loading state initially", () => {
-      getAllForms.mockReturnValue(new Promise(() => {}));
-      
-      renderComponent();
-      expect(screen.getByText("Loading forms...")).toBeInTheDocument();
-    });
-
-    test("renders error message on fetch failure", async () => {
-      getAllForms.mockRejectedValue(new Error("API Error"));
-      
-      renderComponent();
-      expect(await screen.findByText("Failed to load forms")).toBeInTheDocument();
-    });
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  describe("Tab Navigation", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
-    });
+  const renderComponent = () => {
+    return render(
+      <BrowserRouter>
+        <LearnerForms />
+      </BrowserRouter>
+    );
+  };
 
-    test("renders both tabs correctly", async () => {
-      renderComponent();
-      expect(await screen.findByText("Self-Service Forms")).toBeInTheDocument();
-      expect(screen.getByText("My Submissions")).toBeInTheDocument();
-    });
+  test('renders component with tabs', async () => {
+    renderComponent();
 
-    test("self-service tab is active by default", async () => {
-      renderComponent();
-      const selfServiceTab = await screen.findByText("Self-Service Forms");
-      expect(selfServiceTab.closest("button")).toHaveClass("active");
-    });
-
-    test("switches to my submissions tab on click", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      
-      fireEvent.click(mySubmissionsTab);
-      
-      expect(mySubmissionsTab.closest("button")).toHaveClass("active");
-    });
-
-    test("switches back to self-service tab on click", async () => {
-      renderComponent();
-      const selfServiceTab = await screen.findByText("Self-Service Forms");
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      
-      fireEvent.click(mySubmissionsTab);
-      fireEvent.click(selfServiceTab);
-      
-      expect(selfServiceTab.closest("button")).toHaveClass("active");
-    });
+    expect(screen.getByText('Self-Service Forms')).toBeInTheDocument();
+    expect(screen.getByText('My Submissions')).toBeInTheDocument();
   });
 
-  describe("Self-Service Forms Tab", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
+  test('displays published forms in Self-Service tab', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
+      expect(screen.getByText('Published Form 2')).toBeInTheDocument();
     });
 
-    test("renders published forms in grid layout", async () => {
-      renderComponent();
-      expect(await screen.findByText("Employee Feedback Form")).toBeInTheDocument();
-      expect(screen.getByText("Training Assessment")).toBeInTheDocument();
+    expect(screen.queryByText('Draft Form')).not.toBeInTheDocument();
+  });
+
+  test('displays form descriptions and dates', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('This is a published form')).toBeInTheDocument();
+      expect(screen.getByText('Another published form')).toBeInTheDocument();
     });
 
-    test("displays form titles correctly", async () => {
-      renderComponent();
-      expect(await screen.findByText("Employee Feedback Form")).toBeInTheDocument();
-      expect(screen.getByText("Training Assessment")).toBeInTheDocument();
-    });
+    expect(screen.getByText(/Jan 15, 2024/)).toBeInTheDocument();
+    expect(screen.getByText(/Jan 20, 2024/)).toBeInTheDocument();
+  });
 
-    test("displays form descriptions correctly", async () => {
-      renderComponent();
-      expect(await screen.findByText("Share your feedback about the workplace")).toBeInTheDocument();
-      expect(screen.getByText("Evaluate your training experience")).toBeInTheDocument();
-    });
+  test('switches to My Submissions tab', async () => {
+    renderComponent();
 
-    test("displays formatted created dates", async () => {
-      renderComponent();
-      await screen.findByText("Employee Feedback Form");
-      expect(screen.getByText(/Jan 15, 2024/)).toBeInTheDocument();
-      expect(screen.getByText(/Jan 20, 2024/)).toBeInTheDocument();
-    });
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
 
-    test("renders start completion buttons for each form", async () => {
-      renderComponent();
-      await screen.findByText("Employee Feedback Form");
-      const buttons = screen.getAllByText("Start Completion");
-      expect(buttons).toHaveLength(2);
-    });
-
-    test("filters out draft forms (status 0)", async () => {
-      getAllForms.mockResolvedValue({ 
-        data: [...mockPublishedForms, mockDraftForm] 
-      });
-      
-      renderComponent();
-      await screen.findByText("Employee Feedback Form");
-      expect(screen.queryByText("Draft Form")).not.toBeInTheDocument();
-    });
-
-    test("shows message when no published forms available", async () => {
-      getAllForms.mockResolvedValue({ data: [] });
-      
-      renderComponent();
-      expect(await screen.findByText("No published forms available.")).toBeInTheDocument();
-    });
-
-    test("handles forms without description", async () => {
-      const formWithoutDesc = {
-        ...mockPublishedForms[0],
-        config: { title: "Test Form" },
-      };
-      getAllForms.mockResolvedValue({ data: [formWithoutDesc] });
-      
-      renderComponent();
-      expect(await screen.findByText("No description available")).toBeInTheDocument();
-    });
-
-    test("handles forms without published date", async () => {
-      const formWithoutDate = {
-        ...mockPublishedForms[0],
-        publishedAt: null,
-      };
-      getAllForms.mockResolvedValue({ data: [formWithoutDate] });
-      
-      renderComponent();
-      await screen.findByText("Employee Feedback Form");
-      expect(screen.getByText(/N\/A/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Training Name')).toBeInTheDocument();
+      expect(screen.getByText('Submitted On')).toBeInTheDocument();
+      expect(screen.getByText('Action')).toBeInTheDocument();
     });
   });
 
-  describe("My Submissions Tab", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
-    });
+  test('displays submissions in My Submissions tab', async () => {
+    renderComponent();
 
-    test("renders search input in submissions tab", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      expect(screen.getByPlaceholderText("Search forms...")).toBeInTheDocument();
-    });
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
 
-    test("renders submissions table headers", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Training Name")).toBeInTheDocument();
-        expect(screen.getByText("Submitted On")).toBeInTheDocument();
-        expect(screen.getByText("Action")).toBeInTheDocument();
-      });
-    });
-
-    test("displays all submitted forms in table", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Employee Feedback Form")).toBeInTheDocument();
-        expect(screen.getByText("Training Assessment")).toBeInTheDocument();
-      });
-    });
-
-    test("displays formatted submission dates", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      await waitFor(() => {
-        const dates = screen.getAllByText(/2024/);
-        expect(dates.length).toBeGreaterThan(0);
-      });
-    });
-
-    test("renders view buttons for each submission", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      await waitFor(() => {
-        const viewButtons = screen.getAllByRole("button", { name: "View" });
-        expect(viewButtons).toHaveLength(2);
-      });
-    });
-
-    test("shows message when no submissions found", async () => {
-      getAllResponsesByLearner.mockResolvedValue([]);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      await waitFor(() => {
-        expect(screen.getByText("No submissions found.")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
+      expect(screen.getByText('Published Form 2')).toBeInTheDocument();
     });
   });
 
-  describe("Search Functionality", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
+  test('handles search input', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("filters submissions by form title", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const searchInput = await screen.findByPlaceholderText("Search forms...");
-      fireEvent.change(searchInput, { target: { value: "Employee" } });
-      
-      await waitFor(() => {
-        expect(screen.getByText("Employee Feedback Form")).toBeInTheDocument();
-        expect(screen.queryByText("Training Assessment")).not.toBeInTheDocument();
-      });
+    const searchInput = screen.getByPlaceholderText('Search');
+    fireEvent.change(searchInput, { target: { value: 'Form 1' } });
+
+    expect(searchInput.value).toBe('Form 1');
+
+    await waitFor(() => {
+      expect(getAllForms).toHaveBeenCalledWith(0, 50, 'Form 1');
+    }, { timeout: 1000 });
+  });
+
+  test('opens FormFillView when Start Completion is clicked', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("search is case insensitive", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const searchInput = await screen.findByPlaceholderText("Search forms...");
-      fireEvent.change(searchInput, { target: { value: "TRAINING" } });
-      
-      await waitFor(() => {
-        expect(screen.getByText("Training Assessment")).toBeInTheDocument();
-      });
-    });
+    const startButtons = screen.getAllByText('Start Completion');
+    fireEvent.click(startButtons[0]);
 
-    test("shows all submissions when search is cleared", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const searchInput = await screen.findByPlaceholderText("Search forms...");
-      fireEvent.change(searchInput, { target: { value: "Employee" } });
-      fireEvent.change(searchInput, { target: { value: "" } });
-      
-      await waitFor(() => {
-        expect(screen.getByText("Employee Feedback Form")).toBeInTheDocument();
-        expect(screen.getByText("Training Assessment")).toBeInTheDocument();
-      });
-    });
-
-    test("shows no results message when search has no matches", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const searchInput = await screen.findByPlaceholderText("Search forms...");
-      fireEvent.change(searchInput, { target: { value: "NonExistent" } });
-      
-      await waitFor(() => {
-        expect(screen.getByText("No submissions found.")).toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(screen.getByTestId('form-fill-view')).toBeInTheDocument();
     });
   });
 
-  describe("Response Modal", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
-      getFormById.mockResolvedValue(mockFormDetails);
+  test('returns from FormFillView to My Submissions', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("opens modal when view button is clicked", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Employee Feedback Form")).toBeInTheDocument();
-      });
+    const startButtons = screen.getAllByText('Start Completion');
+    fireEvent.click(startButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-fill-view')).toBeInTheDocument();
     });
 
-    test("displays form title in modal", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Employee Feedback Form")).toBeInTheDocument();
-      });
-    });
+    const backButton = screen.getByText('Back');
+    fireEvent.click(backButton);
 
-    test("displays form description in modal", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Share your feedback")).toBeInTheDocument();
-      });
-    });
-
-    test("renders close button in modal", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("✕")).toBeInTheDocument();
-      });
-    });
-
-    test("closes modal when close button is clicked", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      const closeButton = await screen.findByText("✕");
-      fireEvent.click(closeButton);
-      
-      await waitFor(() => {
-        expect(screen.queryByText("Share your feedback")).not.toBeInTheDocument();
-      });
-    });
-
-    test("closes modal when overlay is clicked", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        const overlay = screen.getByText("Share your feedback").closest(".response-modal-overlay");
-        fireEvent.click(overlay);
-      });
-      
-      await waitFor(() => {
-        expect(screen.queryByText("Share your feedback")).not.toBeInTheDocument();
-      });
+    await waitFor(() => {
+      expect(screen.getByText('My Submissions')).toBeInTheDocument();
+      expect(screen.getByText('My Submissions')).toHaveClass('active');
     });
   });
 
-  describe("Modal Questions Display", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
-      getFormById.mockResolvedValue(mockFormDetails);
+  test('displays view response button in submissions', async () => {
+    const { container } = renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      const viewButtons = container.querySelectorAll('.view-button');
+      expect(viewButtons.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('opens response modal when view button is clicked', async () => {
+    const { container } = renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("displays all questions in modal", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText(/How do you rate the workplace?/)).toBeInTheDocument();
-        expect(screen.getByText(/Select your department/)).toBeInTheDocument();
-      });
+    const viewButtons = container.querySelectorAll('.view-button');
+    fireEvent.click(viewButtons[0]);
+
+    await waitFor(() => {
+      expect(getFormById).toHaveBeenCalledWith('form1');
+      expect(screen.getByText('Question 1')).toBeInTheDocument();
+    });
+  });
+
+  test('closes response modal when close button is clicked', async () => {
+    const { container } = renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("displays question numbers", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText(/1\./)).toBeInTheDocument();
-        expect(screen.getByText(/2\./)).toBeInTheDocument();
-      });
+    const viewButtons = container.querySelectorAll('.view-button');
+    fireEvent.click(viewButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Question 1')).toBeInTheDocument();
     });
 
-    test("displays question descriptions when enabled", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Please provide details")).toBeInTheDocument();
-      });
+    const closeButton = screen.getByText('✕');
+    fireEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Question 1')).not.toBeInTheDocument();
+    });
+  });
+
+  test('handles pagination - next page', async () => {
+    renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("displays text answers correctly", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Great workplace")).toBeInTheDocument();
-      });
+    const nextButton = screen.getByText('›');
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(getAllResponsesByLearner).toHaveBeenCalledWith('', 2, 1);
+    });
+  });
+
+  test('handles pagination - previous page', async () => {
+    renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
     });
 
-    test("displays 'No response' for unanswered questions", async () => {
-      const responseWithMissing = [
+    // Go to page 2
+    const nextButton = screen.getByText('›');
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(getAllResponsesByLearner).toHaveBeenCalledWith('', 2, 1);
+    });
+
+    // Go back to page 1
+    const prevButton = screen.getByText('‹');
+    fireEvent.click(prevButton);
+
+    await waitFor(() => {
+      expect(getAllResponsesByLearner).toHaveBeenCalledWith('', 1, 1);
+    });
+  });
+
+  test('handles page size change', async () => {
+    renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published Form 1')).toBeInTheDocument();
+    });
+
+    const pageSizeSelect = screen.getByDisplayValue('1');
+    fireEvent.change(pageSizeSelect, { target: { value: '10' } });
+
+    await waitFor(() => {
+      expect(getAllResponsesByLearner).toHaveBeenCalledWith('', 1, 10);
+    });
+  });
+
+  test('displays pagination info correctly', async () => {
+    renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('1–1 of 2 items')).toBeInTheDocument();
+    });
+  });
+
+  test('displays no submissions message when empty', async () => {
+    getAllResponsesByLearner.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      pageSize: 1,
+    });
+
+    renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('No submissions found.')).toBeInTheDocument();
+    });
+  });
+
+  test('displays no forms message when empty', async () => {
+    getAllForms.mockResolvedValue({ data: [] });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('No published forms available.')).toBeInTheDocument();
+    });
+  });
+
+  test('handles API error gracefully', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    getAllForms.mockRejectedValue(new Error('API Error'));
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to load data')).toBeInTheDocument();
+    });
+
+    consoleError.mockRestore();
+  });
+
+  test('displays file download link in response modal', async () => {
+    const mockResponseWithFile = {
+      items: [
         {
-          ...mockResponses[0],
-          answers: [{ questionId: "q1", answerText: "Great workplace" }],
-        },
-      ];
-      getAllResponsesByLearner.mockResolvedValue(responseWithMissing);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("No response")).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe("Dropdown and Checkbox Answers", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getAllResponsesByLearner.mockResolvedValue(mockResponses);
-      getFormById.mockResolvedValue(mockFormDetails);
-    });
-
-    test("displays dropdown option values instead of IDs", async () => {
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Engineering")).toBeInTheDocument();
-      });
-    });
-
-    test("handles multiple checkbox selections", async () => {
-      const responseWithMultiple = [
-        {
-          ...mockResponses[0],
-          answers: [
-            { questionId: "q2", answerText: '["opt1","opt2"]' },
-          ],
-        },
-      ];
-      getAllResponsesByLearner.mockResolvedValue(responseWithMultiple);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("Engineering, Marketing")).toBeInTheDocument();
-      });
-    });
-
-    test("handles invalid JSON in answer text gracefully", async () => {
-      const responseWithInvalidJSON = [
-        {
-          ...mockResponses[0],
-          answers: [
-            { questionId: "q2", answerText: "invalid json" },
-          ],
-        },
-      ];
-      getAllResponsesByLearner.mockResolvedValue(responseWithInvalidJSON);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("invalid json")).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe("File Upload Display", () => {
-    beforeEach(() => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      getFormById.mockResolvedValue(mockFormDetails);
-    });
-
-    test("displays file download link when file is uploaded", async () => {
-      const responseWithFile = [
-        {
-          ...mockResponses[0],
-          answers: [{ questionId: "q3", answerText: "" }],
+          responseId: 'resp1',
+          formId: 'form1',
+          formTitle: 'Form with File',
+          submittedAt: '2024-01-16T10:30:00Z',
+          answers: [],
           files: [
             {
-              questionId: "q3",
-              fileName: "document.pdf",
-              fileType: "application/pdf",
-              base64Content: btoa("test content"),
+              questionId: 'q3',
+              fileName: 'test.pdf',
+              fileType: 'application/pdf',
+              base64Content: 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFI+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hbMCAwIDMgM10+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNTMgMDAwMDAgbiAKMDAwMDAwMDEwMiAwMDAwMCBuIAp0cmFpbGVyCjw8L1NpemUgNC9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjE0OAolJUVPRgo=',
             },
           ],
         },
-      ];
-      getAllResponsesByLearner.mockResolvedValue(responseWithFile);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("document.pdf")).toBeInTheDocument();
-      });
-    });
+      ],
+      totalCount: 1,
+      pageSize: 1,
+    };
 
-    test("displays 'No file uploaded' when no file is present", async () => {
-      const responseWithoutFile = [
+    const mockFormWithFileUpload = {
+      config: {
+        title: 'Form with File',
+        description: 'Form with file upload',
+      },
+      layout: {
+        fields: [
+          {
+            questionId: 'q3',
+            label: 'Upload File',
+            type: 'file-upload',
+          },
+        ],
+      },
+    };
+
+    getAllResponsesByLearner.mockResolvedValue(mockResponseWithFile);
+    getFormById.mockResolvedValue(mockFormWithFileUpload);
+
+    const { container } = renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Form with File')).toBeInTheDocument();
+    }, { timeout: 2000 });
+
+    const viewButtons = container.querySelectorAll('.view-button');
+    expect(viewButtons.length).toBeGreaterThan(0);
+    
+    fireEvent.click(viewButtons[0]);
+
+    await waitFor(() => {
+      expect(getFormById).toHaveBeenCalledWith('form1');
+    }, { timeout: 2000 });
+
+    await waitFor(() => {
+      expect(screen.getByText('Upload File')).toBeInTheDocument();
+    }, { timeout: 2000 });
+
+    await waitFor(() => {
+      const fileLink = screen.getByText('test.pdf');
+      expect(fileLink).toBeInTheDocument();
+      expect(fileLink).toHaveAttribute('href', 'blob:mock-url');
+      expect(fileLink).toHaveAttribute('download', 'test.pdf');
+    }, { timeout: 2000 });
+  });
+
+  test('handles dropdown/checkbox/radio answers correctly', async () => {
+    const mockResponseWithOptions = {
+      items: [
         {
-          ...mockResponses[0],
-          answers: [{ questionId: "q3", answerText: "" }],
+          responseId: 'resp1',
+          formId: 'form1',
+          formTitle: 'Form with Options',
+          submittedAt: '2024-01-16T10:30:00Z',
+          answers: [
+            { questionId: 'q2', answerText: '["opt1"]' },
+          ],
           files: [],
         },
-      ];
-      getAllResponsesByLearner.mockResolvedValue(responseWithoutFile);
-      
-      renderComponent();
-      const mySubmissionsTab = await screen.findByText("My Submissions");
-      fireEvent.click(mySubmissionsTab);
-      
-      const viewButtons = await screen.findAllByRole("button", { name: "View" });
-      fireEvent.click(viewButtons[0]);
-      
-      await waitFor(() => {
-        expect(screen.getByText("No file uploaded")).toBeInTheDocument();
-      });
+      ],
+      totalCount: 1,
+      pageSize: 1,
+    };
+
+    getAllResponsesByLearner.mockResolvedValue(mockResponseWithOptions);
+
+    const { container } = renderComponent();
+
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Form with Options')).toBeInTheDocument();
+    });
+
+    const viewButtons = container.querySelectorAll('.view-button');
+    fireEvent.click(viewButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Option 1')).toBeInTheDocument();
     });
   });
 
-  describe("Edge Cases", () => {
-    test("handles forms with status as string '1'", async () => {
-      getAllForms.mockResolvedValue({ data: mockPublishedForms });
-      
-      renderComponent();
-      expect(await screen.findByText("Training Assessment")).toBeInTheDocument();
-    });
+  test('resets page number when switching tabs', async () => {
+    renderComponent();
 
-    test("handles empty form data response", async () => {
-      getAllForms.mockResolvedValue({ data: null });
-      
-      renderComponent();
-      await waitFor(() => {
-        expect(screen.queryByText("Employee Feedback Form")).not.toBeInTheDocument();
-      });
-    });
+    const mySubmissionsTab = screen.getByText('My Submissions');
+    fireEvent.click(mySubmissionsTab);
 
-    test("handles form without config object", async () => {
-      const formWithoutConfig = {
-        id: "form1",
-        status: 1,
-        publishedAt: "2024-01-15T10:30:00Z",
-      };
-      getAllForms.mockResolvedValue({ data: [formWithoutConfig] });
-      
-      renderComponent();
-      expect(await screen.findByText("Untitled Form")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getAllResponsesByLearner).toHaveBeenCalledWith('', 1, 1);
     });
   });
 });

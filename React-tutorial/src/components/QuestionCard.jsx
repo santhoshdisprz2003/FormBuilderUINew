@@ -40,7 +40,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
       multiple_choice,
     };
 
-    // Ensure both single_choice and multiple_choice are set properly
+    
     if (field.type === "drop-down") {
       updatedField.single_choice = single_choice;
       updatedField.multiple_choice = multiple_choice;
@@ -103,7 +103,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
   className={`question-card ${isActive ? "active" : "inactive"}`} 
   onClick={()=>setActiveIndex(index)}
 >
-      {/* Question Input */}
+      
       <div className="question-input-wrapper">
         <input
           type="text"
@@ -117,7 +117,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
         <span className="char-count">{question.length}/150</span>
       </div>
 
-      {/* Description Input */}
+      
       {showDescription && (
         <div className="description-input-wrapper">
           <input
@@ -133,7 +133,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
         </div>
       )}
 
-      {/* Field-Specific UI */}
+      
       {field.type=="short-text" && (
         <input
           type="text"
@@ -168,7 +168,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
                 : dateFormat}
             </span>
             <img
-              src={CalendarIcon}  // <-- use your own icon here
+              src={CalendarIcon}  
               alt="calendar"
               className="calendar-icon"
             />
@@ -251,7 +251,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
         </div>
       )}
 
-      {/* File Upload Field */}
+      
       {field.type === "file-upload" && (
         <div className="file-upload-container">
           <div className="file-upload-display">
@@ -268,7 +268,7 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
         </div>
       )}
 
-      {/* Number Field */}
+      
       {field.type === "number" && (
         <div className="number-field-container">
           <input
@@ -281,7 +281,6 @@ export default function QuestionCard({ field, index, onDelete, onCopy, onUpdate,
       )}
 
 
-      {/* Actions */}
       <div className="question-actions">
         <div className="action-buttons">
           <button onClick={() => onCopy(index)} className="action-btn">

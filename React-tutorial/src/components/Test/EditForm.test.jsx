@@ -1,22 +1,26 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import EditForm from "../EditForm";
 
 // Mock API
 const mockGetFormById = jest.fn();
+const mockUpdateFormConfig = jest.fn();
+const mockUpdateFormLayout = jest.fn();
+const mockPublishForm = jest.fn();
 
 jest.mock("../../api/formService", () => ({
   getFormById: (...args) => mockGetFormById(...args),
-  updateFormConfig: jest.fn(),
-  updateFormLayout: jest.fn(),
-  publishForm: jest.fn(),
+  updateFormConfig: (...args) => mockUpdateFormConfig(...args),
+  updateFormLayout: (...args) => mockUpdateFormLayout(...args),
+  publishForm: (...args) => mockPublishForm(...args),
 }));
 
-// Mock react-router-dom hooks
+// Mock react-router-dom
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useNavigate: () => jest.fn(),
-  useParams: () => ({ id: "form-123" }),
+  useParams: () => ({ id: "test-form-123" }),
 }));
 
 // Mock images
@@ -30,79 +34,41 @@ jest.mock("../../assets/NumberIcon.png", () => "number.png");
 
 // Mock child components
 jest.mock("../FormConfiguration", () => {
-  return function FormConfiguration({ formName, description, visibility, setFormName, setDescription, setVisibility }) {
+  return function FormConfiguration({ formName, description, visibility }) {
     return (
       <div data-testid="form-configuration">
-        <input
-          data-testid="form-name-input"
-          value={formName}
-          onChange={(e) => setFormName(e.target.value)}
-        />
-        <input
-          data-testid="description-input"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          data-testid="visibility-checkbox"
-          type="checkbox"
-          checked={visibility}
-          onChange={(e) => setVisibility(e.target.checked)}
-        />
+        <div>Form Name: {formName}</div>
+        <div>Description: {description}</div>
+        <div>Visibility: {visibility ? "Public" : "Private"}</div>
       </div>
     );
   };
 });
 
 jest.mock("../FormLayout", () => {
-  return function FormLayout({ fields, setFields, formName, description, handleDelete, handleCopy }) {
+  return function FormLayout({ fields, formName, description }) {
     return (
       <div data-testid="form-layout">
-        <div data-testid="form-title">{formName}</div>
-        <div data-testid="form-description">{description}</div>
-        <div data-testid="fields-count">{fields.length}</div>
-        <button
-          data-testid="add-field-button"
-          onClick={() => setFields([...fields, { id: Date.now(), type: "short-text", label: "New Field" }])}
-        >
-          Add Field
-        </button>
-        {fields.map((field, index) => (
-          <div key={field.id} data-testid={`field-${index}`}>
-            <button data-testid={`delete-field-${index}`} onClick={() => handleDelete(index)}>
-              Delete
-            </button>
-            <button data-testid={`copy-field-${index}`} onClick={() => handleCopy(index)}>
-              Copy
-            </button>
-          </div>
-        ))}
+        <div>Form: {formName}</div>
+        <div>Desc: {description}</div>
+        <div>Fields: {fields.length}</div>
       </div>
     );
   };
 });
 
 jest.mock("../FormPreviewModal", () => {
-  return function FormPreviewModal({ show, onClose, formName, description, fields }) {
+  return function FormPreviewModal({ show, formName }) {
     if (!show) return null;
-    return (
-      <div data-testid="form-preview-modal">
-        <div data-testid="preview-form-name">{formName}</div>
-        <div data-testid="preview-description">{description}</div>
-        <div data-testid="preview-fields-count">{fields.length}</div>
-        <button data-testid="close-preview" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    );
+    return <div data-testid="preview-modal">Preview: {formName}</div>;
   };
 });
 
 const mockFormData = {
-  id: "form-123",
+  id: "test-form-123",
   config: {
-    title: "Test Form",
-    description: "Test Description",
+    title: "My Test Form",
+    description: "Test form description",
     visibility: true,
   },
   layout: {
@@ -112,35 +78,33 @@ const mockFormData = {
         questionId: "q1",
         label: "Question 1",
         type: "short-text",
-        descriptionEnabled: true,
-        description: "Field description",
-        singleChoice: false,
-        multipleChoice: false,
-        options: [],
-        format: "",
         required: true,
-        order: 0,
       },
     ],
   },
 };
 
-describe("EditForm Component", () => {
+describe("EditForm - Simple Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     window.alert = jest.fn();
     console.error = jest.fn();
+    console.log = jest.fn();
     mockGetFormById.mockResolvedValue(mockFormData);
+    mockUpdateFormConfig.mockResolvedValue({ success: true });
+    mockUpdateFormLayout.mockResolvedValue({ success: true });
+    mockPublishForm.mockResolvedValue({ success: true });
   });
 
-  test("renders component", async () => {
+  // Basic Rendering Tests
+  test("should render the component", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByText("Form Configuration")).toBeInTheDocument();
     });
   });
 
-  test("renders both tabs", async () => {
+  test("should display both tabs", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByText("Form Configuration")).toBeInTheDocument();
@@ -148,250 +112,258 @@ describe("EditForm Component", () => {
     });
   });
 
-  test("renders configuration tab by default", async () => {
+  test("should show configuration tab by default", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
     });
   });
 
-  test("renders footer buttons", async () => {
+  // Data Loading Tests
+  test("should load form data on mount", async () => {
     render(<EditForm />);
     await waitFor(() => {
-      expect(screen.getByText("Save as draft")).toBeInTheDocument();
+      expect(mockGetFormById).toHaveBeenCalledWith("test-form-123");
+    });
+  });
+
+  test("should display loaded form name", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByText(/My Test Form/)).toBeInTheDocument();
+    });
+  });
+
+  test("should display loaded description", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByText(/Test form description/)).toBeInTheDocument();
+    });
+  });
+
+  test("should display visibility status", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByText(/Public/)).toBeInTheDocument();
+    });
+  });
+
+  // Tab Switching Tests
+  test("should switch to layout tab when clicked", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByText("Form Layout"));
+    
+    expect(screen.getByTestId("form-layout")).toBeInTheDocument();
+    expect(screen.queryByTestId("form-configuration")).not.toBeInTheDocument();
+  });
+
+  test("should switch back to configuration tab", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByText("Form Layout"));
+    fireEvent.click(screen.getByText("Form Configuration"));
+    
+    expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
+  });
+
+  test("should show Next button in configuration tab", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
       expect(screen.getByText("Next")).toBeInTheDocument();
     });
   });
 
-  test("loads form name", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-name-input").value).toBe("Test Form");
-    });
-  });
-
-  test("loads form description", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("description-input").value).toBe("Test Description");
-    });
-  });
-
-  test("loads visibility state", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("visibility-checkbox").checked).toBe(true);
-    });
-  });
-
-  test("switches to layout tab", async () => {
+  test("Next button should switch to layout tab", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByText("Form Layout"));
+    
+    fireEvent.click(screen.getByText("Next"));
+    
     expect(screen.getByTestId("form-layout")).toBeInTheDocument();
   });
 
-  test("switches back to configuration tab", async () => {
+  // Footer Buttons Tests
+  test("should show Save as draft button", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByText("Save as draft")).toBeInTheDocument();
+    });
+  });
+
+  test("should show Publish button in layout tab", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
-    fireEvent.click(screen.getByText("Form Configuration"));
-    expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
-  });
-
-  test("updates form name", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-name-input")).toBeInTheDocument();
-    });
-    const input = screen.getByTestId("form-name-input");
-    fireEvent.change(input, { target: { value: "Updated Form" } });
-    expect(input.value).toBe("Updated Form");
-  });
-
-  test("updates description", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("description-input")).toBeInTheDocument();
-    });
-    const input = screen.getByTestId("description-input");
-    fireEvent.change(input, { target: { value: "Updated Description" } });
-    expect(input.value).toBe("Updated Description");
-  });
-
-  test("toggles visibility", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("visibility-checkbox")).toBeInTheDocument();
-    });
-    const checkbox = screen.getByTestId("visibility-checkbox");
-    fireEvent.click(checkbox);
-    expect(checkbox.checked).toBe(false);
-  });
-
-  test("displays form name in layout tab", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("form-title").textContent).toBe("Test Form");
-    });
-  });
-
-  test("displays form description in layout tab", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("form-description").textContent).toBe("Test Description");
-    });
-  });
-
-  test("displays existing fields count", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(mockGetFormById).toHaveBeenCalled();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("fields-count").textContent).toBe("1");
-    });
-  });
-
-  test("adds a new field", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(mockGetFormById).toHaveBeenCalled();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("fields-count").textContent).toBe("1");
-    });
-    fireEvent.click(screen.getByTestId("add-field-button"));
-    expect(screen.getByTestId("fields-count").textContent).toBe("2");
-  });
-
-  test("deletes a field", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(mockGetFormById).toHaveBeenCalled();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("fields-count").textContent).toBe("1");
-    });
-    fireEvent.click(screen.getByTestId("delete-field-0"));
-    expect(screen.getByTestId("fields-count").textContent).toBe("0");
-  });
-
-  test("copies a field", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(mockGetFormById).toHaveBeenCalled();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    await waitFor(() => {
-      expect(screen.getByTestId("fields-count").textContent).toBe("1");
-    });
-    fireEvent.click(screen.getByTestId("copy-field-0"));
-    expect(screen.getByTestId("fields-count").textContent).toBe("2");
-  });
-
-  test("renders Preview button in layout tab", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
-    expect(screen.getByText("Preview")).toBeInTheDocument();
-  });
-
-  test("renders Publish button in layout tab", async () => {
-    render(<EditForm />);
-    await waitFor(() => {
-      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText("Form Layout"));
+    
     expect(screen.getByText("Publish")).toBeInTheDocument();
   });
 
-  test("does not show preview modal by default", async () => {
+  test("should show Preview button in layout tab", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(mockGetFormById).toHaveBeenCalled();
+    });
+    
+    fireEvent.click(screen.getByText("Form Layout"));
+    
+    expect(screen.getByText("Preview")).toBeInTheDocument();
+  });
+
+  // Save Draft Tests
+  test("should call updateFormConfig when saving draft in config tab", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
     });
-    expect(screen.queryByTestId("form-preview-modal")).not.toBeInTheDocument();
+    
+    fireEvent.click(screen.getByText("Save as draft"));
+    
+    await waitFor(() => {
+      expect(mockUpdateFormConfig).toHaveBeenCalled();
+      expect(window.alert).toHaveBeenCalledWith(
+        "✅ Form Configuration updated and saved as Draft!"
+      );
+    });
   });
 
-  test("shows preview modal when clicked", async () => {
+  test("should call updateFormLayout when saving draft in layout tab", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(mockGetFormById).toHaveBeenCalled();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
-    fireEvent.click(screen.getByText("Preview"));
-    expect(screen.getByTestId("form-preview-modal")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Save as draft"));
+    
+    await waitFor(() => {
+      expect(mockUpdateFormLayout).toHaveBeenCalled();
+      expect(window.alert).toHaveBeenCalledWith(
+        "✅ Form Layout updated and saved as Draft!"
+      );
+    });
   });
 
-  test("closes preview modal", async () => {
+  // Publish Tests
+  test("should call publishForm when Publish button clicked", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(mockGetFormById).toHaveBeenCalled();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
-    fireEvent.click(screen.getByText("Preview"));
-    fireEvent.click(screen.getByTestId("close-preview"));
-    expect(screen.queryByTestId("form-preview-modal")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Publish"));
+    
+    await waitFor(() => {
+      expect(mockPublishForm).toHaveBeenCalledWith("test-form-123");
+      expect(window.alert).toHaveBeenCalledWith("🚀 Form published successfully!");
+    });
   });
 
-  test("displays form name in preview", async () => {
+  // Preview Modal Tests
+  test("should not show preview modal by default", async () => {
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
+    });
+    
+    expect(screen.queryByTestId("preview-modal")).not.toBeInTheDocument();
+  });
+
+  test("should show preview modal when Preview clicked", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(mockGetFormById).toHaveBeenCalled();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
     fireEvent.click(screen.getByText("Preview"));
-    expect(screen.getByTestId("preview-form-name").textContent).toBe("Test Form");
+    
+    expect(screen.getByTestId("preview-modal")).toBeInTheDocument();
   });
 
-  test("displays description in preview", async () => {
+  // Error Handling Tests
+  test("should handle API error gracefully", async () => {
+    mockGetFormById.mockRejectedValue(new Error("API Error"));
+    
+    render(<EditForm />);
+    
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  test("should handle save draft error", async () => {
+    mockUpdateFormConfig.mockRejectedValue(new Error("Save failed"));
+    
+    render(<EditForm />);
+    await waitFor(() => {
+      expect(screen.getByTestId("form-configuration")).toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByText("Save as draft"));
+    
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("❌ Failed to save draft.");
+    });
+  });
+
+  test("should handle publish error", async () => {
+    mockPublishForm.mockRejectedValue(new Error("Publish failed"));
+    
     render(<EditForm />);
     await waitFor(() => {
       expect(mockGetFormById).toHaveBeenCalled();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
-    fireEvent.click(screen.getByText("Preview"));
-    expect(screen.getByTestId("preview-description").textContent).toBe("Test Description");
+    fireEvent.click(screen.getByText("Publish"));
+    
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("❌ Error publishing form.");
+    });
   });
 
-  test("displays field count in preview", async () => {
+  // Fields Tests
+  test("should display loaded fields count", async () => {
     render(<EditForm />);
     await waitFor(() => {
       expect(mockGetFormById).toHaveBeenCalled();
     });
+    
     fireEvent.click(screen.getByText("Form Layout"));
-    fireEvent.click(screen.getByText("Preview"));
-    expect(screen.getByTestId("preview-fields-count").textContent).toBe("1");
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Fields: 1/)).toBeInTheDocument();
+    });
   });
 
-  test("handles empty form data", async () => {
+  test("should handle empty fields", async () => {
     mockGetFormById.mockResolvedValue({
-      id: "form-123",
-      config: { title: "", description: "", visibility: false },
+      ...mockFormData,
       layout: { fields: [] },
     });
+    
     render(<EditForm />);
     await waitFor(() => {
-      expect(screen.getByTestId("form-name-input").value).toBe("");
-      expect(screen.getByTestId("description-input").value).toBe("");
+      expect(mockGetFormById).toHaveBeenCalled();
+    });
+    
+    fireEvent.click(screen.getByText("Form Layout"));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Fields: 0/)).toBeInTheDocument();
     });
   });
 });

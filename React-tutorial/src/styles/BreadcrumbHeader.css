@@ -52,7 +52,7 @@
 
 /* ✅ Logout button aligned to the far right */
 .logout-button {
-  background-color: #e74c3c;
+  background-color: #5D38DF;
   color: white;
   border: none;
   border-radius: 6px;
@@ -62,6 +62,3 @@
   transition: background-color 0.2s;
 }
 
-.logout-button:hover {
-  background-color: #c0392b;
-}

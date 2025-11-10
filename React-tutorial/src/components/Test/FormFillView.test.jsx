@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import FormFillView from "../FormFillView";
 
 // Mock API
@@ -8,6 +9,10 @@ const mockSubmitResponse = jest.fn();
 jest.mock("../../api/responses", () => ({
   submitResponse: (...args) => mockSubmitResponse(...args),
 }));
+
+// Mock images
+jest.mock("../../assets/SubmitResponseIcon.png", () => "submit-response-icon.png");
+jest.mock("../../assets/FileSizeIcon.png", () => "file-size-icon.png");
 
 describe("FormFillView Component - Rendering Tests", () => {
   const mockOnBack = jest.fn();
@@ -39,17 +44,12 @@ describe("FormFillView Component - Rendering Tests", () => {
     jest.clearAllMocks();
     window.alert = jest.fn();
     console.error = jest.fn();
+    window.scrollTo = jest.fn();
   });
 
   test("renders component", () => {
     render(<FormFillView form={mockForm} onBack={mockOnBack} />);
     expect(screen.getByText("Header Title")).toBeInTheDocument();
-  });
-
-  test("renders back button", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const backButton = screen.getByText("←");
-    expect(backButton).toBeInTheDocument();
   });
 
   test("renders form title from headerCard", () => {
@@ -62,16 +62,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     expect(screen.getByText("Header Description")).toBeInTheDocument();
   });
 
-  test("renders section title", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    expect(screen.getByText("Professional Certificate Training")).toBeInTheDocument();
-  });
-
-  test("renders section subtext", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    expect(screen.getByText("Help us improve! Share your feedback on your learning experience.")).toBeInTheDocument();
-  });
-
   test("renders Clear Form button", () => {
     render(<FormFillView form={mockForm} onBack={mockOnBack} />);
     expect(screen.getByText("Clear Form")).toBeInTheDocument();
@@ -82,18 +72,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     expect(screen.getByText("Submit")).toBeInTheDocument();
   });
 
-  test("renders info banner", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    expect(screen.getByText("This form cannot be saved temporarily; please submit once completed.")).toBeInTheDocument();
-  });
-
-  test("calls onBack when back button is clicked", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const backButton = screen.getByText("←");
-    fireEvent.click(backButton);
-    expect(mockOnBack).toHaveBeenCalledTimes(1);
-  });
-
   test("renders question label", () => {
     render(<FormFillView form={mockForm} onBack={mockOnBack} />);
     expect(screen.getByText(/Short Text Question/)).toBeInTheDocument();
@@ -101,7 +79,7 @@ describe("FormFillView Component - Rendering Tests", () => {
 
   test("renders question number", () => {
     render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    expect(screen.getByText(/1\./)).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
   });
 
   test("renders required asterisk for required field", () => {
@@ -274,9 +252,12 @@ describe("FormFillView Component - Rendering Tests", () => {
       },
     };
     render(<FormFillView form={formWithMultipleFields} onBack={mockOnBack} />);
-    expect(screen.getByText(/1\. Question 1/)).toBeInTheDocument();
-    expect(screen.getByText(/2\. Question 2/)).toBeInTheDocument();
-    expect(screen.getByText(/3\. Question 3/)).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("Question 1")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("Question 2")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("Question 3")).toBeInTheDocument();
   });
 
   test("renders no questions message when fields are empty", () => {
@@ -386,17 +367,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     expect(select.value).toBe("Option 1");
   });
 
-  test("clears form responses", () => {
-    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const input = screen.getByPlaceholderText("Your Answer");
-    fireEvent.change(input, { target: { value: "Test Answer" } });
-    expect(input.value).toBe("Test Answer");
-    
-    const clearButton = screen.getByText("Clear Form");
-    fireEvent.click(clearButton);
-    expect(input.value).toBe("");
-  });
-
   test("renders without description when not provided", () => {
     const formWithoutDesc = {
       ...mockForm,
@@ -490,7 +460,7 @@ describe("FormFillView Component - Rendering Tests", () => {
     render(<FormFillView form={formWithFile} onBack={mockOnBack} />);
     
     const file = new File(["content"], "test.pdf", { type: "application/pdf" });
-    const input = screen.getByLabelText(/Drop files here or/);
+    const input = document.querySelector('input[type="file"]');
     
     fireEvent.change(input, { target: { files: [file] } });
     
@@ -515,7 +485,7 @@ describe("FormFillView Component - Rendering Tests", () => {
     render(<FormFillView form={formWithFile} onBack={mockOnBack} />);
     
     const file = new File(["content"], "test.pdf", { type: "application/pdf" });
-    const input = screen.getByLabelText(/Drop files here or/);
+    const input = document.querySelector('input[type="file"]');
     
     fireEvent.change(input, { target: { files: [file] } });
     expect(screen.getByText("test.pdf")).toBeInTheDocument();
@@ -530,12 +500,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     const { container } = render(<FormFillView form={mockForm} onBack={mockOnBack} />);
     const footer = container.querySelector(".formfill-footer");
     expect(footer).toBeInTheDocument();
-  });
-
-  test("renders header with correct classes", () => {
-    const { container } = render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const header = container.querySelector(".formfill-header");
-    expect(header).toBeInTheDocument();
   });
 
   test("renders body with correct classes", () => {
@@ -567,12 +531,12 @@ describe("FormFillView Component - Rendering Tests", () => {
     };
     render(<FormFillView form={formWithAllTypes} onBack={mockOnBack} />);
     
-    expect(screen.getByText(/1\. Short Text/)).toBeInTheDocument();
-    expect(screen.getByText(/2\. Long Text/)).toBeInTheDocument();
-    expect(screen.getByText(/3\. Number/)).toBeInTheDocument();
-    expect(screen.getByText(/4\. Date/)).toBeInTheDocument();
-    expect(screen.getByText(/5\. Dropdown/)).toBeInTheDocument();
-    expect(screen.getByText(/6\. File/)).toBeInTheDocument();
+    expect(screen.getByText("Short Text")).toBeInTheDocument();
+    expect(screen.getByText("Long Text")).toBeInTheDocument();
+    expect(screen.getByText("Number")).toBeInTheDocument();
+    expect(screen.getByText("Date")).toBeInTheDocument();
+    expect(screen.getByText("Dropdown")).toBeInTheDocument();
+    expect(screen.getByText("File")).toBeInTheDocument();
   });
 
   test("handles empty options array for dropdown", () => {
@@ -595,33 +559,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     expect(screen.getByText("Select Answer")).toBeInTheDocument();
   });
 
-  test("clears multiple field responses", () => {
-    const formWithMultipleFields = {
-      ...mockForm,
-      layout: {
-        ...mockForm.layout,
-        fields: [
-          { questionId: "q1", label: "Question 1", type: "short-text", required: false },
-          { questionId: "q2", label: "Question 2", type: "number", required: false },
-        ],
-      },
-    };
-    render(<FormFillView form={formWithMultipleFields} onBack={mockOnBack} />);
-    
-    const inputs = screen.getAllByPlaceholderText("Your Answer");
-    fireEvent.change(inputs[0], { target: { value: "Answer 1" } });
-    fireEvent.change(inputs[1], { target: { value: "42" } });
-    
-    expect(inputs[0].value).toBe("Answer 1");
-    expect(inputs[1].value).toBe("42");
-    
-    const clearButton = screen.getByText("Clear Form");
-    fireEvent.click(clearButton);
-    
-    expect(inputs[0].value).toBe("");
-    expect(inputs[1].value).toBe("");
-  });
-
   test("renders textarea with correct rows attribute", () => {
     const formWithLongText = {
       ...mockForm,
@@ -642,12 +579,6 @@ describe("FormFillView Component - Rendering Tests", () => {
     expect(textarea).toHaveAttribute("rows", "3");
   });
 
-  test("back button has correct class", () => {
-    const { container } = render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const backButton = container.querySelector(".back-button");
-    expect(backButton).toBeInTheDocument();
-  });
-
   test("clear button has correct class", () => {
     const { container } = render(<FormFillView form={mockForm} onBack={mockOnBack} />);
     const clearButton = container.querySelector(".clear-btn");
@@ -659,10 +590,304 @@ describe("FormFillView Component - Rendering Tests", () => {
     const submitButton = container.querySelector(".submit-btn");
     expect(submitButton).toBeInTheDocument();
   });
+});
 
-  test("info banner has correct class", () => {
-    const { container } = render(<FormFillView form={mockForm} onBack={mockOnBack} />);
-    const infoBanner = container.querySelector(".info-banner");
-    expect(infoBanner).toBeInTheDocument();
+describe("FormFillView Component - Clear Modal Tests", () => {
+  const mockOnBack = jest.fn();
+
+  const mockForm = {
+    id: "form-123",
+    config: {
+      title: "Test Form",
+      description: "Test Description",
+    },
+    layout: {
+      headerCard: {
+        title: "Header Title",
+        description: "Header Description",
+      },
+      fields: [
+        {
+          questionId: "q1",
+          label: "Question 1",
+          type: "short-text",
+          required: false,
+        },
+      ],
+    },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    window.alert = jest.fn();
+    window.scrollTo = jest.fn();
+  });
+
+  test("does not show clear modal by default", () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    expect(screen.queryByText("Clear Form", { selector: "h3" })).not.toBeInTheDocument();
+  });
+
+  test("shows clear modal when Clear Form button clicked", () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    const clearButton = screen.getByText("Clear Form", { selector: "button" });
+    fireEvent.click(clearButton);
+    expect(screen.getByText("Clear Form", { selector: "h3" })).toBeInTheDocument();
+  });
+
+  test("displays clear modal message", () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    const clearButton = screen.getByText("Clear Form", { selector: "button" });
+    fireEvent.click(clearButton);
+    expect(screen.getByText(/Are you sure you want to clear all the information/)).toBeInTheDocument();
+  });
+
+  test("closes clear modal when Cancel clicked", () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    const clearButton = screen.getByText("Clear Form", { selector: "button" });
+    fireEvent.click(clearButton);
+    
+    const cancelButton = screen.getByText("Cancel");
+    fireEvent.click(cancelButton);
+    
+    expect(screen.queryByText("Clear Form", { selector: "h3" })).not.toBeInTheDocument();
+  });
+
+  test("clears form and closes modal when Yes, Clear clicked", () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test Answer" } });
+    expect(input.value).toBe("Test Answer");
+    
+    const clearButton = screen.getByText("Clear Form", { selector: "button" });
+    fireEvent.click(clearButton);
+    
+    const confirmButton = screen.getByText("Yes, Clear");
+    fireEvent.click(confirmButton);
+    
+    expect(input.value).toBe("");
+    expect(screen.queryByText("Clear Form", { selector: "h3" })).not.toBeInTheDocument();
+  });
+
+  test("clears multiple field responses", () => {
+    const formWithMultipleFields = {
+      ...mockForm,
+      layout: {
+        ...mockForm.layout,
+        fields: [
+          { questionId: "q1", label: "Question 1", type: "short-text", required: false },
+          { questionId: "q2", label: "Question 2", type: "number", required: false },
+        ],
+      },
+    };
+    render(<FormFillView form={formWithMultipleFields} onBack={mockOnBack} />);
+    
+    const inputs = screen.getAllByPlaceholderText("Your Answer");
+    fireEvent.change(inputs[0], { target: { value: "Answer 1" } });
+    fireEvent.change(inputs[1], { target: { value: "42" } });
+    
+    expect(inputs[0].value).toBe("Answer 1");
+    expect(inputs[1].value).toBe("42");
+    
+    const clearButton = screen.getByText("Clear Form", { selector: "button" });
+    fireEvent.click(clearButton);
+    
+    const confirmButton = screen.getByText("Yes, Clear");
+    fireEvent.click(confirmButton);
+    
+    expect(inputs[0].value).toBe("");
+    expect(inputs[1].value).toBe("");
+  });
+});
+
+describe("FormFillView Component - Submit Tests", () => {
+  const mockOnBack = jest.fn();
+
+  const mockForm = {
+    id: "form-123",
+    config: {
+      title: "Test Form",
+      description: "Test Description",
+    },
+    layout: {
+      headerCard: {
+        title: "Header Title",
+        description: "Header Description",
+      },
+      fields: [
+        {
+          questionId: "q1",
+          label: "Question 1",
+          type: "short-text",
+          required: true,
+        },
+      ],
+    },
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    window.alert = jest.fn();
+    window.scrollTo = jest.fn();
+    mockSubmitResponse.mockResolvedValue({});
+  });
+
+  test("shows validation error when required field is empty", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText("Please fill this field.")).toBeInTheDocument();
+    });
+  });
+
+  test("scrolls to top when validation fails", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  test("clears error when user types in field", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText("Please fill this field.")).toBeInTheDocument();
+    });
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test" } });
+    
+    expect(screen.queryByText("Please fill this field.")).not.toBeInTheDocument();
+  });
+
+  test("submits form successfully with valid data", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test Answer" } });
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(mockSubmitResponse).toHaveBeenCalled();
+    });
+  });
+
+  test("shows submit modal after successful submission", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test Answer" } });
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Has Been Submitted!/)).toBeInTheDocument();
+    });
+  });
+
+  test("calls onBack when Go to My Submission clicked", async () => {
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test Answer" } });
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText("Go to My Submission")).toBeInTheDocument();
+    });
+    
+    const goButton = screen.getByText("Go to My Submission");
+    fireEvent.click(goButton);
+    
+    expect(mockOnBack).toHaveBeenCalled();
+  });
+
+  test("handles submit error gracefully", async () => {
+    mockSubmitResponse.mockRejectedValue(new Error("Submit failed"));
+    
+    render(<FormFillView form={mockForm} onBack={mockOnBack} />);
+    
+    const input = screen.getByPlaceholderText("Your Answer");
+    fireEvent.change(input, { target: { value: "Test Answer" } });
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith("Failed to submit the form. Please try again.");
+    });
+  });
+
+  test("validates file upload required field", async () => {
+    const formWithFile = {
+      ...mockForm,
+      layout: {
+        ...mockForm.layout,
+        fields: [
+          {
+            questionId: "q1",
+            label: "File Upload",
+            type: "file-upload",
+            required: true,
+          },
+        ],
+      },
+    };
+    
+    render(<FormFillView form={formWithFile} onBack={mockOnBack} />);
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText("Please fill this field.")).toBeInTheDocument();
+    });
+  });
+
+  test("submits form with file upload", async () => {
+    const formWithFile = {
+      ...mockForm,
+      layout: {
+        ...mockForm.layout,
+        fields: [
+          {
+            questionId: "q1",
+            label: "File Upload",
+            type: "file-upload",
+            required: true,
+          },
+        ],
+      },
+    };
+    
+    render(<FormFillView form={formWithFile} onBack={mockOnBack} />);
+    
+    const file = new File(["content"], "test.pdf", { type: "application/pdf" });
+    const input = document.querySelector('input[type="file"]');
+    
+    fireEvent.change(input, { target: { files: [file] } });
+    
+    const submitButton = screen.getByText("Submit");
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(mockSubmitResponse).toHaveBeenCalled();
+    });
   });
 });

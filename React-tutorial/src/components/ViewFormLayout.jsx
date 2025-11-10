@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/ViewFormLayout.css";
 
-// ✅ Reuse same icons and colors as FormLayout
+
 import ViewShortTextIcon from "../assets/ViewShortTextIcon.png";
 import ViewLongTextIcon from "../assets/ViewLongTextIcon.png";
 import ViewDatePickerIcon from "../assets/ViewDatePickerIcon.png";
@@ -15,6 +15,8 @@ export default function ViewFormLayout({ formData }) {
   const header = formData?.layout?.headerCard || {};
   const fields = formData?.layout?.fields || [];
 
+  console.log(formData);
+
   const inputFields = [
     { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ViewShortTextIcon, borderColor: "#4F46E5" },
     { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: ViewLongTextIcon, borderColor: "#7B61FF40" },
@@ -26,7 +28,7 @@ export default function ViewFormLayout({ formData }) {
 
   return (
     <div className="form-layout-container">
-      {/* ---------- Left Panel ---------- */}
+      
       <div className="form-layout-left">
         <h4 className="input-title">Input Fields</h4>
         <div className="input-field-list">
@@ -43,18 +45,18 @@ export default function ViewFormLayout({ formData }) {
         </div>
       </div>
 
-      {/* ---------- Right Panel ---------- */}
+      
       <div className="form-layout-right">
-        {/* Header */}
+        
         <div className="form-header-box1">
           <div className="form-header-title">Form Header</div>
           <h3 className="header-input1">{header.title || formData?.config?.title || ""}</h3>
-          <h5
+          <h4
             className="header-textarea1">
-          {header.description || formData?.config?.description || ""}</h5>
+          {header.description || formData?.config?.description || ""}</h4>
         </div>
 
-        {/* ---------- Questions ---------- */}
+        
         {fields.length === 0 ? (
           <p className="no-questions">No questions found for this form.</p>
         ) : (
@@ -69,9 +71,7 @@ export default function ViewFormLayout({ formData }) {
   <p className="question-description1">{q.description}</p>
 )}
 
-              {/* ---------- Field Types ---------- */}
-
-              {/* Short Text */}
+              
               {q.type === "short-text" && (
                 <input
                   type="text"
@@ -81,7 +81,7 @@ export default function ViewFormLayout({ formData }) {
                 />
               )}
 
-              {/* Long Text */}
+              
               {q.type === "long-text" && (
                 <textarea
                   className="question-input1"
@@ -90,12 +90,12 @@ export default function ViewFormLayout({ formData }) {
                 />
               )}
 
-              {/* Date Picker */}
+              
               {q.type === "date-picker" && (
                 <input type="date" className="question-input1" readOnly />
               )}
 
-              {/* Dropdown (rendered as radio buttons) */}
+             
               {q.type === "drop-down" && (
                 <div className="dropdown-display">
                   {q.options?.length > 0 ? (
@@ -112,7 +112,7 @@ export default function ViewFormLayout({ formData }) {
                 </div>
               )}
 
-              {/* File Upload */}
+              
               {q.type === "file-upload" && (
                 <div className="question-input1">
                   <div className="file-upload-icon">
@@ -127,7 +127,7 @@ export default function ViewFormLayout({ formData }) {
                 </div>
               )}
 
-              {/* Number */}
+              
               {q.type === "number" && (
                 <input
                   type="number"

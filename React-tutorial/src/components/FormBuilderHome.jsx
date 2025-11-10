@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import HomePlaceholder from "./HomePlaceholder";
 import FormList from "./FormList";
 import { useNavigate } from "react-router-dom";
-
+import { useFormContext } from "../context/FormContext";
 import { getAllForms, deleteForm } from "../api/formService";
+import SearchIcon from "../assets/SearchIcon.png";
 
 export default function FormBuilderHome() {
   const navigate = useNavigate();
@@ -14,8 +15,17 @@ export default function FormBuilderHome() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const { 
+    setFormId, 
+    setFormName, 
+    setDescription, 
+    setVisibility, 
+    setFields, 
+    setHeaderCard, 
+    setActiveTab ,
+    setReadOnly
+  } = useFormContext();
 
-  
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       getForms(search);
@@ -24,7 +34,16 @@ export default function FormBuilderHome() {
   }, [search]);
 
   const handleCreateForm = () => {
+    
+    setFormId(null);
+    setFormName("");
+    setDescription("");
+    setVisibility(false);
+    setFields([]);
+    setHeaderCard({ title: "", description: "" });
+    setActiveTab("configuration");
     navigate("/create-form");
+    setReadOnly(false)
   };
 
   const getForms = async (searchTerm = "") => {
@@ -32,12 +51,10 @@ export default function FormBuilderHome() {
       setLoading(true);
       setError(null);
       const response = await getAllForms(0, 10, searchTerm);
-      console.log('Forms data:', response.data);
-      console.log('First form:', response.data[0]);
       setForms(response.data);
     } catch (err) {
-      console.error('Error fetching forms:', err);
-      setError('Failed to load forms');
+      console.error("Error fetching forms:", err);
+      setError("Failed to load forms");
     } finally {
       setLoading(false);
     }
@@ -47,44 +64,62 @@ export default function FormBuilderHome() {
     try {
       setLoading(true);
       setError(null);
-      
-      // Call the delete API
       await deleteForm(id);
-      
-      // Remove the deleted form from state
       setForms(forms?.filter((form) => form.id !== id));
       setOpenMenuId(null);
-      
-      console.log('Form deleted successfully:', id);
+      console.log("Form deleted successfully:", id);
     } catch (err) {
-      console.error('Error deleting form:', err);
-      setError('Failed to delete form');
-      alert('Failed to delete form. Please try again.');
+      console.error("Error deleting form:", err);
+      setError("Failed to delete form");
+      alert("Failed to delete form. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading && forms.length === 0) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading forms...</div>;
+    return <div style={{ padding: "20px", textAlign: "center" }}>Loading forms...</div>;
   }
 
   if (error && forms.length === 0) {
-    return <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>{error}</div>;
+    return <div style={{ padding: "20px", textAlign: "center", color: "red" }}>{error}</div>;
   }
 
-  return forms?.length === 0 ? (
-    <HomePlaceholder onCreate={handleCreateForm} />
-  ) : (
-    <FormList
-      forms={forms}
-      search={search}
-      setSearch={setSearch}
-      openMenuId={openMenuId}
-      setOpenMenuId={setOpenMenuId}
-      handleCreateForm={handleCreateForm}
-      handleDelete={handleDelete}
-      loading={loading}
-    />
+  
+  return (
+    <div className="formbuilder-home">
+      <div className="header">
+        <p>Form List</p>
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <img src={SearchIcon} alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <button className="create-btn" onClick={handleCreateForm}>
+            Create Form
+          </button>
+        </div>
+      </div>
+
+     
+      {forms?.length === 0 ? (
+        <HomePlaceholder onCreate={handleCreateForm} />
+      ) : (
+        <FormList
+          forms={forms}
+          openMenuId={openMenuId}
+          setOpenMenuId={setOpenMenuId}
+          handleDelete={handleDelete}
+          loading={loading}
+        />
+      )}
+    </div>
   );
 }

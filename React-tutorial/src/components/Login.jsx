@@ -1,4 +1,4 @@
-// src/components/Login.jsx
+
 import React, { useState } from "react";
 import { login, register } from "../api/auth";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ const Login = () => {
           }
         )
         console.log(response)
-        setMessage("✅ Registration successful! Please log in.");
+        setMessage(" Registration successful! Please log in.");
         setIsRegister(false);
       } else {
         const response = await login(
@@ -40,7 +40,7 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error)
-      setMessage("❌ " + (error.response?.data?.message || "Something went wrong"));
+      setMessage( (error.response?.data?.message || "Something went wrong"));
     }
   };
 

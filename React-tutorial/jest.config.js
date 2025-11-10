@@ -22,5 +22,11 @@ module.exports = {
   ],
   moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules', 'src'],
-  resolver: undefined
+  resolver: undefined,
+  // Add globals for TextEncoder/TextDecoder
+  globals: {
+    'ts-jest': {
+      isolatedModules: true
+    }
+  }
 };

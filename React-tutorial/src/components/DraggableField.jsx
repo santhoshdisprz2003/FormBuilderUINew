@@ -1,4 +1,4 @@
-// src/components/DraggableField.jsx
+
 import React from "react";
 import "../styles/DraggableField.css";
 

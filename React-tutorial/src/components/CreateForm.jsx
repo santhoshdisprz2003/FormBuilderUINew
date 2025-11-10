@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../styles/CreateForm.css";
 import EyeIcon from "../assets/Eye.png";
 import FormConfiguration from "./FormConfiguration";
@@ -23,11 +23,8 @@ import {
 import { useFormContext } from "../context/FormContext";
 import { toast } from "react-toastify";
 
-
-
-
 export default function CreateForm({ mode = "create" }) {
-    const {
+  const {
     formId,
     setFormId,
     formName,
@@ -49,13 +46,9 @@ export default function CreateForm({ mode = "create" }) {
   const { formId: paramFormId } = useParams();
   const navigate = useNavigate();
 
- 
-
-
   const handlePreview = () => setShowPreview(true);
 
 
-  // Available input field types
   const inputFields = [
     { id: 1, label: "Short Text", type: "short-text", maxChar: 100, icon: ShortTextIcon, borderColor: "#CBE3FE" },
     { id: 2, label: "Long Text", type: "long-text", maxChar: 500, icon: LongTextIcon, borderColor: "#7B61FF40" },
@@ -65,7 +58,6 @@ export default function CreateForm({ mode = "create" }) {
     { id: 6, label: "Number", type: "number", icon: NumberIcon, borderColor: "#F3CCE1" },
   ];
 
-  // 🔹 Load existing form if in edit mode
   useEffect(() => {
     if (mode === "edit" && paramFormId) {
       (async () => {
@@ -77,7 +69,7 @@ export default function CreateForm({ mode = "create" }) {
           setDescription(existingForm.config.description || "");
           setVisibility(existingForm.config.visibility || false);
 
-          // Map layout fields back into UI format
+
           const loadedFields = existingForm.layout?.fields?.map((f) => ({
             id: f.id,
             label: f.label,
@@ -95,14 +87,14 @@ export default function CreateForm({ mode = "create" }) {
 
           setFields(loadedFields);
         } catch (err) {
-          console.error("❌ Failed to load form for editing:", err);
+          console.error(" Failed to load form for editing:", err);
           alert("Error loading form data for editing.");
         }
       })();
     }
   }, [mode, paramFormId]);
 
-  // --- Save Draft Logic ---
+
   const handleSaveDraft = async () => {
     try {
       if (activeTab === "configuration") {
@@ -111,12 +103,12 @@ export default function CreateForm({ mode = "create" }) {
           const response = await createFormConfig(configData);
           setFormId(response.id);
           toast.success(" Form configuration created and saved as draft!");
-          navigate("/"); 
+          navigate("/");
           return response.id;
         } else {
           await updateFormConfig(formId, configData);
           toast.success(" Form configuration updated and saved as draft!");
-          navigate("/"); 
+          navigate("/");
           return formId;
         }
       } else if (activeTab === "layout") {
@@ -126,11 +118,11 @@ export default function CreateForm({ mode = "create" }) {
         }
 
         const layoutData = {
-          headerCard: { 
-          id: Date.now().toString(), 
-          title: headerCard.title, 
-          description: headerCard.description 
-        },
+          headerCard: {
+            id: Date.now().toString(),
+            title: headerCard.title,
+            description: headerCard.description
+          },
           fields: fields.map((f, i) => ({
             id: f.id || i,
             questionId: f.questionId || Date.now().toString() + i,
@@ -152,7 +144,7 @@ export default function CreateForm({ mode = "create" }) {
 
         await updateFormLayout(formId, layoutData);
         toast.success(" Form layout Updated and saved as draft!");
-        navigate("/"); 
+        navigate("/");
       }
     } catch (err) {
       toast.error(" Error saving draft:");
@@ -160,7 +152,7 @@ export default function CreateForm({ mode = "create" }) {
     }
   };
 
-  // --- Publish Form ---
+
   const handlePublish = async () => {
     if (!formId) {
       toast.error("Please save the configuration first!");
@@ -169,11 +161,11 @@ export default function CreateForm({ mode = "create" }) {
 
     try {
       const layoutData = {
-         headerCard: {
-        id: Date.now().toString(),
-        title: headerCard.title,
-        description: headerCard.description,
-      },
+        headerCard: {
+          id: Date.now().toString(),
+          title: headerCard.title,
+          description: headerCard.description,
+        },
         fields: fields.map((f, i) => ({
           id: f.id || i,
           questionId: f.questionId || Date.now().toString() + i,
@@ -196,7 +188,7 @@ export default function CreateForm({ mode = "create" }) {
       await updateFormLayout(formId, layoutData);
       const publishedForm = await publishForm(formId);
       toast.success(" Form published successfully...");
-      navigate("/"); // redirect to home after saving draft
+      navigate("/");
     } catch (err) {
       toast.error("Error publishing form:");
       toast.error("Failed to publish form.");
@@ -205,9 +197,9 @@ export default function CreateForm({ mode = "create" }) {
 
   return (
     <div className="create-form-container">
-      {/* Tabs */}
+
       <div className="tab-container">
-        <button 
+        <button
           className={`tab ${activeTab === "configuration" ? "active" : ""}`}
           onClick={() => setActiveTab("configuration")}
         >
@@ -225,15 +217,15 @@ export default function CreateForm({ mode = "create" }) {
         </button>
       </div>
 
-      {/* Render Tab */}
+
       {activeTab === "configuration" ? (
         <FormConfiguration
         />
       ) : (
-        <FormLayout  inputFields={inputFields}/>
+        <FormLayout inputFields={inputFields} />
       )}
 
-      {/* Footer */}
+
       <div className="footer-buttons">
         <div className="footer-left-buttons">
           {activeTab === "layout" && (
@@ -250,7 +242,7 @@ export default function CreateForm({ mode = "create" }) {
             <button
               className="next-btn"
               onClick={async () => {
-                 setActiveTab("layout");
+                setActiveTab("layout");
               }}
               disabled={!formName.trim()}
             >

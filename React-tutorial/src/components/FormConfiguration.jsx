@@ -1,4 +1,4 @@
-// src/components/FormConfiguration.jsx
+
 import React from "react";
 import "../styles/FormConfiguration.css";
 import { useFormContext } from "../context/FormContext";
@@ -11,9 +11,11 @@ export default function FormConfiguration() {
     setDescription,
     visibility,
     setVisibility,
+    formData,
+    readOnly
   } = useFormContext();
 
-  console.log(formName);
+  console.log(formData);
   
 
   return (
@@ -32,6 +34,7 @@ export default function FormConfiguration() {
           value={formName}
           onChange={(e) => setFormName(e.target.value)}
           maxLength={80}
+          disabled={readOnly}
         />
         <span className="char-count">{formName.length}/80</span>
       </div>
@@ -45,6 +48,7 @@ export default function FormConfiguration() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={200}
+          disabled={readOnly}
         />
         <span className="char-count">{description.length}/200</span>
       </div>
@@ -57,6 +61,7 @@ export default function FormConfiguration() {
             type="checkbox"
             checked={visibility}
             onChange={() => setVisibility((v) => !v)}
+            disabled={readOnly}
           />
           <span className="slider round" />
         </label>

@@ -426,7 +426,7 @@
 
 
 .file-size-icon{
-  width: 60 px;
+  width: 60 px !important;
   height:60px;
   
 }

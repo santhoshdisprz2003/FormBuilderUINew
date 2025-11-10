@@ -6,6 +6,7 @@ import ViewFormLayout from "./ViewFormLayout";
 import { getFormById } from "../api/formService.js"; 
 import FormResponses from "./FormResponses";
 import { useParams, useLocation } from "react-router-dom";
+import { useFormContext } from "../context/FormContext.jsx";
 
 
 
@@ -16,7 +17,14 @@ export default function ViewForm() {
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch form by ID from backend
+  const {
+      setFormName,
+      setDescription,
+      setReadOnly
+
+    } = useFormContext();
+
+  
   useEffect(() => {
      console.log("Form ID from route:", id); 
     const fetchForm = async () => {
@@ -25,6 +33,10 @@ export default function ViewForm() {
          const response = await getFormById(id); 
          console.log("API response:", response);
   setFormData(response);
+  setFormName(response.config.title);
+  setDescription(response.config.description);
+  setReadOnly(true);
+
       } catch (err) {
         console.error("Error fetching form:", err);
       } finally {
@@ -44,7 +56,7 @@ export default function ViewForm() {
     <div className="create-form-container">
       
 
-      {/* ✅ Tab Buttons */}
+      
       <div className="tab-container">
         <button
           className={`tab ${activeTab === "configuration" ? "active" : ""}`}
@@ -66,18 +78,10 @@ export default function ViewForm() {
         </button>
       </div>
 
-      {/* ✅ Tab Content */}
+      
       <div className="tab-content">
         {activeTab === "configuration" && (
-          <FormConfiguration
-            formName={formData?.config?.title || ""}
-            description={formData?.config?.description || ""}
-            visibility={false}
-            setFormName={() => {}}
-            setDescription={() => {}}
-            setVisibility={() => {}}
-            readOnly={true} 
-          />
+          <FormConfiguration />
         )}
 
         {activeTab === "layout" && (

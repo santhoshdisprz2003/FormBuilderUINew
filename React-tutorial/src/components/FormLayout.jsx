@@ -1,4 +1,3 @@
-// src/components/FormLayout.jsx
 import React, { useState, useEffect } from "react";
 import "../styles/FormLayout.css";
 import DraggableField from "./DraggableField";
@@ -18,6 +17,7 @@ export default function FormLayout({inputFields}) {
     headerCard,
     setHeaderCard,
   } = useFormContext();
+  
     const [activeIndex, setActiveIndex] = useState(null);
 
 useEffect(() => {
@@ -28,7 +28,7 @@ useEffect(() => {
   }));
 }, [formName, description]);
 
-// --- Drag and Drop Handlers ---
+
   const handleDrop = (e) => {
     e.preventDefault();
     try {
@@ -49,7 +49,7 @@ useEffect(() => {
 
     return (
         <div className="form-layout-container">
-            {/* Left Panel */}
+            
             <div className="form-layout-left">
                 <h4 className="input-title">Input Fields</h4>
                 <div className="input-field-list">
@@ -59,7 +59,7 @@ useEffect(() => {
                 </div>
             </div>
 
-            {/* Right Panel */}
+            
             <div
                 className="form-layout-right"
                 onDragOver={(e) => e.preventDefault()}
@@ -68,7 +68,6 @@ useEffect(() => {
                 <div className="form-header-box">
                     <div className="form-header-title">Header Card</div>
 
-                    {/* Editable Header Title */}
                     <div className="field-wrapper">
                         <input
                             type="text"
@@ -82,7 +81,7 @@ useEffect(() => {
                         />
                     </div>
 
-                    {/* Editable Header Description */}
+                    
                     <div className="field-wrapper">
                         <textarea
                             className="form-header-textarea"
@@ -97,7 +96,7 @@ useEffect(() => {
                 </div>
 
 
-                {/* Drop zone */}
+                
                 {fields.length === 0 && (
                     <div className="form-drop-zone">
                         <div className="drag-panel">

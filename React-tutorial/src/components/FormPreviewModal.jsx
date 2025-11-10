@@ -28,14 +28,13 @@ export default function FormPreviewModal({ show, onClose, formName, description,
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        {/* 🔙 Header with Back Button */}
         <div className="preview-header">
           <button className="back-btn" onClick={onClose}>
-            <span className="arrow">←</span> {/* ← Unicode back arrow */}
+            <span className="arrow">←</span> 
           </button>
         </div>
 
-        {/* Inner Card */}
+        
         <div className="preview-card">
           <div className="form-header">
             <h3 className="form-title">{formName || "Form Title"}</h3>
@@ -44,7 +43,7 @@ export default function FormPreviewModal({ show, onClose, formName, description,
             </p>
           </div>
 
-          {/* Questions */}
+          
           {fields && fields.length > 0 ? (
             <div className="preview-fields">
               {fields.map((q, idx) => (
@@ -160,7 +159,7 @@ export default function FormPreviewModal({ show, onClose, formName, description,
             <p className="no-questions">No questions added yet.</p>
           )}
 
-          {/* Footer */}
+          
           <div className="preview-footer">
             <button className="clear-btn" onClick={handleClearForm}>
               Clear Form
